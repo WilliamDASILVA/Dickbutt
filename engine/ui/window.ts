@@ -25,7 +25,7 @@ module UI{
             this.renderElements[0] = new Render.Draw.Rectangle(position.x, position.y, width, height, "rgba(255,255,255,1)");
 
             for (var i = 0; i < this.renderElements.length; ++i) {
-                interfaceCanvas.set(this.renderElements[i]);
+                UI.getUsedCanvas().set(this.renderElements[i]);
             }
         }
     }

@@ -157,7 +157,7 @@ class Camera extends Scene{
 			Return: position
 	\*	--------------------------------------------------- */
 	getOrigin(){
-        return { x: this.position.x - (sX / 2), y: this.position.y - (sY / 2) };
+        return { x: this.position.x - (Global.getScreenSize().width / 2), y: this.position.y - (Global.getScreenSize().height / 2) };
 	}
 
 	/*	--------------------------------------------------- *\

@@ -2,8 +2,9 @@
         Interface
 \*    --------------------------------------------------- */
 module UI{
-
+    var interfaceCanvas = null;
     var fields = [];
+    
     /*    --------------------------------------------------- *\
             [function] isInputEnabled()
     
@@ -20,6 +21,17 @@ module UI{
         }
 
         return focus;
+    }
+
+    /*    --------------------------------------------------- *\
+            [function] getUsedCanvas()
+    
+            * Return the used canvas for interfaces *
+    
+            Return: interfaceCanvas
+    \*    --------------------------------------------------- */
+    export function getUsedCanvas(){
+        return interfaceCanvas;
     }
 
 }

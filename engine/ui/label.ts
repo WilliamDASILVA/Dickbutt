@@ -33,7 +33,7 @@ module UI{
             this.renderElements[0].setDepth(10);
             this.renderElements[0].setMultiline(true);
             for (var i = 0; i < this.renderElements.length; ++i) {
-                interfaceCanvas.set(this.renderElements[i]);
+                UI.getUsedCanvas().set(this.renderElements[i]);
             }
         }
 

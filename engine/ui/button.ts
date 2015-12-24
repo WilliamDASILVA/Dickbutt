@@ -41,7 +41,7 @@ module UI{
             this.renderElements[1].setDepth(2);
 
             for (var i = 0; i < this.renderElements.length; ++i) {
-                interfaceCanvas.set(this.renderElements[i]);
+                UI.getUsedCanvas().set(this.renderElements[i]);
             }
             
         }

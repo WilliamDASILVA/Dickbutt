@@ -867,7 +867,7 @@ var Camera = (function (_super) {
             Return: position
     \*	--------------------------------------------------- */
     Camera.prototype.getOrigin = function () {
-        return { x: this.position.x - (sX / 2), y: this.position.y - (sY / 2) };
+        return { x: this.position.x - (Global.getScreenSize().width / 2), y: this.position.y - (Global.getScreenSize().height / 2) };
     };
     /*	--------------------------------------------------- *\
             [function] lockTo(element)
@@ -1652,7 +1652,7 @@ var Render;
             of.x = depthPosition.x;
             of.y = depthPosition.y;
         }
-        if (position.x > -size.width - of.x && position.x <= sX + size.width + of.x && position.y > -size.height - of.y && position.y <= sY + size.height + of.y) {
+        if (position.x > -size.width - of.x && position.x <= Global.getScreenSize().width + size.width + of.x && position.y > -size.height - of.y && position.y <= Global.getScreenSize().height + size.height + of.y) {
             if (elementToDraw.isVisible(null)) {
                 context.save();
                 // opacity
@@ -3463,6 +3463,7 @@ var Grid;
 \*    --------------------------------------------------- */
 var UI;
 (function (UI) {
+    var interfaceCanvas = null;
     var fields = [];
     /*    --------------------------------------------------- *\
             [function] isInputEnabled()
@@ -3481,6 +3482,17 @@ var UI;
         return focus;
     }
     UI.isInputEnabled = isInputEnabled;
+    /*    --------------------------------------------------- *\
+            [function] getUsedCanvas()
+    
+            * Return the used canvas for interfaces *
+    
+            Return: interfaceCanvas
+    \*    --------------------------------------------------- */
+    function getUsedCanvas() {
+        return interfaceCanvas;
+    }
+    UI.getUsedCanvas = getUsedCanvas;
 })(UI || (UI = {}));
 var UI;
 (function (UI) {
@@ -3825,7 +3837,7 @@ var UI;
             var position = this.getPosition(false);
             this.renderElements[0] = new Render.Draw.Rectangle(position.x, position.y, width, height, "rgba(255,255,255,1)");
             for (var i = 0; i < this.renderElements.length; ++i) {
-                interfaceCanvas.set(this.renderElements[i]);
+                UI.getUsedCanvas().set(this.renderElements[i]);
             }
         }
         return Window;
@@ -3867,7 +3879,7 @@ var UI;
             this.renderElements[0].setDepth(10);
             this.renderElements[0].setMultiline(true);
             for (var i = 0; i < this.renderElements.length; ++i) {
-                interfaceCanvas.set(this.renderElements[i]);
+                UI.getUsedCanvas().set(this.renderElements[i]);
             }
         }
         /*    --------------------------------------------------- *\
@@ -3997,7 +4009,7 @@ var UI;
             this.renderElements[1].setFontStyle("bold");
             this.renderElements[1].setDepth(2);
             for (var i = 0; i < this.renderElements.length; ++i) {
-                interfaceCanvas.set(this.renderElements[i]);
+                UI.getUsedCanvas().set(this.renderElements[i]);
             }
         }
         /*    --------------------------------------------------- *\
@@ -4171,7 +4183,7 @@ var UI;
             this.renderElements[0] = new Render.Draw.Rectangle(position.x, position.y, width, height, "rgba(0,0,0,0.1)");
             this.renderElements[0].setDepth(10);
             for (var i = 0; i < this.renderElements.length; ++i) {
-                interfaceCanvas.set(this.renderElements[i]);
+                UI.getUsedCanvas().set(this.renderElements[i]);
             }
             // Event
             this.click(function () {

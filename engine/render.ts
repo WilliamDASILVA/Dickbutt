@@ -390,7 +390,7 @@ module Render{
 			of.y = depthPosition.y;
 		}
 
-		if (position.x > -size.width - of.x  && position.x <= sX + size.width + of.x && position.y > -size.height - of.y && position.y <= sY + size.height + of.y) {
+		if (position.x > -size.width - of.x  && position.x <= Global.getScreenSize().width + size.width + of.x && position.y > -size.height - of.y && position.y <= Global.getScreenSize().height + size.height + of.y) {
 			if(elementToDraw.isVisible(null)){
 				context.save();
 				// opacity
