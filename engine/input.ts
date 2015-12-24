@@ -98,10 +98,35 @@ module Input{
 				}
 			});
 		}
+
+		/*	--------------------------------------------------- *\
+				[function] setPosition(x, y)
+		
+				* Set the position of the touch event *
+		
+				Return: nil
+		\*	--------------------------------------------------- */
+		setPosition(x : number, y : number){
+			this.x = x;
+			this.y = y;
+		}
+
+	 	/*	--------------------------------------------------- *\
+				[function] setSize(width, height)
+		
+				* Set the size of the aabb box *
+		
+				Return: nil
+		\*	--------------------------------------------------- */
+		setSize(width: number, height: number) {
+			this.width = width;
+			this.height = height;
+		}
+
 	}
 
 	/*	--------------------------------------------------- *\
-			[class] Click()
+			[class] Clic k()
 	
 			* Quand l'utilisateur clique sur une zone *
 	
@@ -220,6 +245,30 @@ module Input{
 				}
 				e.preventDefault();
 			}, false);
+		}
+
+		/*	--------------------------------------------------- *\
+				[function] setPosition(x, y)
+		
+				* Set the position of the touch event *
+		
+				Return: nil
+		\*	--------------------------------------------------- */
+		setPosition(x : number, y : number){
+			this.x = x;
+			this.y = y;
+		}
+
+		/*	--------------------------------------------------- *\
+				[function] setSize(width, height)
+		
+				* Set the size of the aabb box *
+		
+				Return: nil
+		\*	--------------------------------------------------- */
+		setSize(width: number, height: number) {
+			this.width = width;
+			this.height = height;
 		}
 
 	}
