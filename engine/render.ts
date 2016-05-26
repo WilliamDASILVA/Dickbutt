@@ -232,7 +232,7 @@ module Render{
 										var posInGrid = tiles[k].getPositionIntoGrid();
 										var pos = { x: posInGrid.x * grid.getTileSize(), y: posInGrid.y * grid.getTileSize() };
 
-										elementToDraw = tiles[k].getAssignedDrawable();
+										elementToDraw = tiles[k].getAssignedDrawables()[0];
 										var size = elementToDraw.getSize();
 										
 
