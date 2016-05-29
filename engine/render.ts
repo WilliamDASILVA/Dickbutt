@@ -238,7 +238,7 @@ module Render{
 
 										// Gestion de la camera
 										var renderPos = { x: pos.x, y: pos.y };
-										if (camera) {
+										if (layer.affectedByCamera && camera) {
 											var cPos = camera.getPosition();
 											var cameraDepth = camera.getDepth();
 
@@ -262,7 +262,7 @@ module Render{
 									var temp = { x: position.x, y: position.y };
 
 									// camera
-									if(camera){
+									if(layer.affectedByCamera && camera){
 										var cameraPosition = camera.getPosition();
 										// is drawable fixed
 										if(!elementToDraw.isFixed()){
@@ -306,7 +306,7 @@ module Render{
 	    					var size = elementToDraw.getSize();
 
 	    					// Gestion de la camera
-	    					if(renderCamera){
+	    					if(layer.affectedByCamera && renderCamera){
 	    						var cPos = renderCamera.getPosition();
 								var cameraDepth = renderCamera.getDepth();
 
