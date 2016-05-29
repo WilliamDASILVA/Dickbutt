@@ -97,8 +97,14 @@ module Global{
             Return: true, false
     \*    --------------------------------------------------- */
     export function isAndroid(){
-        if(navigator.userAgent.match(new RegExp("(Android|android)+", "g"))){
-            return true;
+        // Using Cordova element instead
+        if(window.hasOwnProperty("cordova")){
+            if(window['cordova'].platformId == "android"){
+                return true;
+            }
+            else{
+                return false;
+            }
         }
         else{
             return false;
