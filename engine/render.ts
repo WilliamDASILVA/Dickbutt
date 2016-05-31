@@ -414,19 +414,6 @@ module Render{
                     rotationPoint.y = position.y + (size.height / 2);
                 }
 
-                // debug mode for drawable
-				if(debugMode.active){
-					context.lineWidth = 2;
-					context.strokeStyle = "#FF0000";
-					context.beginPath();
-					context.moveTo(position.x, position.y);
-					context.lineTo(position.x, position.y + size.height);
-					context.lineTo(position.x + size.width, position.y + size.height);
-					context.lineTo(position.x + size.width, position.y);
-					context.closePath();
-					context.stroke();
-				}
-               
 				if (elementToDraw.getRotation() != 0) {
 					context.translate(rotationPoint.x, rotationPoint.y);
 					context.rotate(elementToDraw.getRotation() * (Math.PI / 180));
@@ -593,6 +580,19 @@ module Render{
 					}
 
 				}
+
+				// debug mode for drawable
+				if(debugMode.active){
+					context.lineWidth = 4;
+					context.strokeStyle = "#FF0000";
+					var pos = position;
+					if(elementToDraw.getShape() == "circle"){
+						pos.x = pos.x - elementToDraw.getRadius();
+						pos.y = pos.y - elementToDraw.getRadius();
+					}
+					context.strokeRect(pos.x, pos.y, size.width, size.height);
+				}
+
 				context.restore();
 			}
 		}
