@@ -258,20 +258,36 @@ module Render{
 									if(!position){
 										position = elementToDraw.absolutePosition;
 									}
+
+									// Check if it's a line
+									var shape = elementToDraw.getShape(); 
+									if(shape == "line"){
+										var target = elementToDraw.getTarget();
+										var targetTemp = {
+											x : target.x,
+											y : target.y
+										};
+									}
+
 									var size = elementToDraw.getSize();
-									var temp = { x: position.x, y: position.y };
+									var positionTemp = { x: position.x, y: position.y };
 
 									// camera
 									if(layer.affectedByCamera && camera){
 										var cameraPosition = camera.getPosition();
 										// is drawable fixed
 										if(!elementToDraw.isFixed()){
-											temp.x = position.x + ((canvas.width / 2) - cameraPosition.x);
-											temp.y = position.y + ((canvas.height / 2) - cameraPosition.y);
+											positionTemp.x = position.x + ((canvas.width / 2) - cameraPosition.x);
+											positionTemp.y = position.y + ((canvas.height / 2) - cameraPosition.y);
+
+											if(targetTemp && target){
+												targetTemp.x = target.x + ((canvas.width / 2) - cameraPosition.x);
+												targetTemp.y = target.y + ((canvas.height / 2) - cameraPosition.y);
+											}
 										}
 									}
 
-									drawElement(context, elementToDraw, temp, size);
+									drawElement(context, elementToDraw, positionTemp, size, targetTemp);
 									break;
 	                    		
 	                    		default:
@@ -368,10 +384,16 @@ module Render{
         }
 	}
     
-	function drawElement(context, elementToDraw, position, size){
+	function drawElement(context, elementToDraw, position, size, secondPosition = null){
 
 		position.x = Math.floor(position.x);
 		position.y = Math.floor(position.y);
+
+		// Do the same calculations for the second position
+		if(secondPosition){
+			secondPosition.x = Math.floor(secondPosition.x);
+			secondPosition.y = Math.floor(secondPosition.y);
+		}
 		
 		size.width = size.width || 1;
 		size.height = size.height || 1;
@@ -407,6 +429,9 @@ module Render{
 					context.scale(-1, 1);
 
 	                position.x = -position.x - size.width;
+	                if(secondPosition){
+						secondPosition.x = -secondPosition.x - size.width;
+	                }
 				}
                 var rotationPoint = elementToDraw.getRotationPoint();
                 if (elementToDraw.fixedToCenter) {
@@ -465,8 +490,9 @@ module Render{
 						case "line":
 							context.beginPath();
 							context.moveTo(Math.ceil(rotationPoint.x - (size.width / 2)), Math.ceil(rotationPoint.y - (size.height / 2)));
-							context.lineTo(elementToDraw.getTarget().x, elementToDraw.getTarget().y);
+							context.lineTo(Math.ceil(secondPosition.x), Math.ceil(secondPosition.y));
 							context.closePath();
+							
 							break;
 						case "text":
 							context.font = elementToDraw.getFontStyle() + " " + elementToDraw.getFontSize() + "px " + elementToDraw.getFont();

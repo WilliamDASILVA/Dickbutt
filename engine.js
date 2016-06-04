@@ -1,3 +1,8 @@
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
 /*	--------------------------------------------------- *\
         Global functions
 \*	--------------------------------------------------- */
@@ -96,8 +101,14 @@ var Global;
             Return: true, false
     \*    --------------------------------------------------- */
     function isAndroid() {
-        if (navigator.userAgent.match(new RegExp("(Android|android)+", "g"))) {
-            return true;
+        // Using Cordova element instead
+        if (window.hasOwnProperty("cordova")) {
+            if (window['cordova'].platformId == "android") {
+                return true;
+            }
+            else {
+                return false;
+            }
         }
         else {
             return false;
@@ -126,6 +137,7 @@ var Global;
             }
             this.functionsToCallWhenReady = [];
             this.functionsToCallWhenLoaded = [];
+            //this.request = new XDomainRequest() ||; 
             try {
                 this.request = new XMLHttpRequest();
             }
@@ -137,8 +149,7 @@ var Global;
                     try {
                         this.request = new ActiveXObject("Microsoft.XMLHTTP");
                     }
-                    catch (e) {
-                    }
+                    catch (e) { }
                 }
             }
             var requestType = "GET";
@@ -187,7 +198,7 @@ var Global;
             this.functionsToCallWhenLoaded.push(functionToCall);
         };
         return XHR;
-    })();
+    }());
     Global.XHR = XHR;
 })(Global || (Global = {}));
 /*	--------------------------------------------------- *\
@@ -266,13 +277,7 @@ var Events = (function () {
         }
     };
     return Events;
-})();
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
+}());
 var _elements = [];
 var collisionGroups = [];
 var collisionNumber = 1;
@@ -675,6 +680,7 @@ var Elements = (function (_super) {
                 }
             }
         }
+        // On crée le groupe si il n'existe pas
         for (var i = groupsCollide.length - 1; i >= 0; i--) {
             if (groupsCollide[i].exists == false) {
                 collisionGroups.push({
@@ -701,7 +707,7 @@ var Elements = (function (_super) {
         delete this;
     };
     return Elements;
-})(p2.Body);
+}(p2.Body));
 /*	--------------------------------------------------- *\
         [class] Scene()
 
@@ -730,7 +736,7 @@ var Scene = (function () {
         return this.origin;
     };
     return Scene;
-})();
+}());
 /*	--------------------------------------------------- *\
         [class] Camera()
 
@@ -912,7 +918,7 @@ var Camera = (function (_super) {
         return this.isCameraLock;
     };
     return Camera;
-})(Scene);
+}(Scene));
 /*	--------------------------------------------------- *\
         Input
 \*	--------------------------------------------------- */
@@ -942,7 +948,7 @@ var Input;
             });
         }
         return MouseMove;
-    })(Events);
+    }(Events));
     Input.MouseMove = MouseMove;
     /*	--------------------------------------------------- *\
             [class] Mouse()
@@ -1028,7 +1034,7 @@ var Input;
             this.height = height;
         };
         return Mouse;
-    })(Events);
+    }(Events));
     Input.Mouse = Mouse;
     /*	--------------------------------------------------- *\
             [class] Clic k()
@@ -1088,7 +1094,7 @@ var Input;
             this.height = height;
         };
         return Click;
-    })(Events);
+    }(Events));
     Input.Click = Click;
     /*	--------------------------------------------------- *\
             [class] Touch()
@@ -1162,7 +1168,7 @@ var Input;
             this.height = height;
         };
         return Touch;
-    })(Events);
+    }(Events));
     Input.Touch = Touch;
     /*	--------------------------------------------------- *\
             [class] Key()
@@ -1230,7 +1236,7 @@ var Input;
             this.keyPressed = newKey;
         };
         return Key;
-    })(Events);
+    }(Events));
     Input.Key = Key;
     updateKeys();
     function updateKeys() {
@@ -1271,7 +1277,7 @@ var Input;
             });
         }
         return Scroll;
-    })(Events);
+    }(Events));
     Input.Scroll = Scroll;
     // Prevent context menu
     window.addEventListener("contextmenu", function (e) {
@@ -1320,6 +1326,7 @@ var Update;
     var timeStep = 1 / 60, maxSubSteps = 10, lastTime;
     function step(t) {
         requestAnimationFrame(step);
+        // update elements
         for (var i = _elements.length - 1; i >= 0; i--) {
             var pos = _elements[i].getPosition();
             _elements[i].setPosition(pos.x, pos.y);
@@ -1330,6 +1337,7 @@ var Update;
             var lockOnPosition = cameraToUpdate.getLockElement().getPosition();
             cameraToUpdate.setPosition(lockOnPosition.x, lockOnPosition.y);
         }
+        // call update functions
         for (var i = functionsToCallWhenUpdate.length - 1; i >= 0; i--) {
             functionsToCallWhenUpdate[i](t);
         }
@@ -1462,6 +1470,7 @@ var Render;
                 for (var i = elementsToDownload.length - 1; i >= 0; i--) {
                     if (elementsToDownload[i].element == elementName) {
                         elementsToDownload[i].downloaded = true;
+                        // Vérifie si tous les download ne sont pas deja fini
                         for (var k = elementsToDownload.length - 1; k >= 0; k--) {
                             if (elementsToDownload[k].downloaded == true) {
                                 filesDownloaded += 1;
@@ -1563,11 +1572,11 @@ var Render;
                                         //var pos = elementToDraw.getPosition();
                                         var posInGrid = tiles[k].getPositionIntoGrid();
                                         var pos = { x: posInGrid.x * grid.getTileSize(), y: posInGrid.y * grid.getTileSize() };
-                                        elementToDraw = tiles[k].getAssignedDrawable();
+                                        elementToDraw = tiles[k].getAssignedDrawables()[0];
                                         var size = elementToDraw.getSize();
                                         // Gestion de la camera
                                         var renderPos = { x: pos.x, y: pos.y };
-                                        if (camera) {
+                                        if (layer.affectedByCamera && camera) {
                                             var cPos = camera.getPosition();
                                             var cameraDepth = camera.getDepth();
                                             // isFixed
@@ -1584,18 +1593,31 @@ var Render;
                                     if (!position) {
                                         position = elementToDraw.absolutePosition;
                                     }
+                                    // Check if it's a line
+                                    var shape = elementToDraw.getShape();
+                                    if (shape == "line") {
+                                        var target = elementToDraw.getTarget();
+                                        var targetTemp = {
+                                            x: target.x,
+                                            y: target.y
+                                        };
+                                    }
                                     var size = elementToDraw.getSize();
-                                    var temp = { x: position.x, y: position.y };
+                                    var positionTemp = { x: position.x, y: position.y };
                                     // camera
-                                    if (camera) {
+                                    if (layer.affectedByCamera && camera) {
                                         var cameraPosition = camera.getPosition();
                                         // is drawable fixed
                                         if (!elementToDraw.isFixed()) {
-                                            temp.x = position.x + ((canvas.width / 2) - cameraPosition.x);
-                                            temp.y = position.y + ((canvas.height / 2) - cameraPosition.y);
+                                            positionTemp.x = position.x + ((canvas.width / 2) - cameraPosition.x);
+                                            positionTemp.y = position.y + ((canvas.height / 2) - cameraPosition.y);
+                                            if (targetTemp && target) {
+                                                targetTemp.x = target.x + ((canvas.width / 2) - cameraPosition.x);
+                                                targetTemp.y = target.y + ((canvas.height / 2) - cameraPosition.y);
+                                            }
                                         }
                                     }
-                                    drawElement(context, elementToDraw, temp, size);
+                                    drawElement(context, elementToDraw, positionTemp, size, targetTemp);
                                     break;
                                 default:
                                     // Draw each drawable of an element
@@ -1624,7 +1646,7 @@ var Render;
                             var elementPosition = elementToDraw.getPosition();
                             var size = elementToDraw.getSize();
                             // Gestion de la camera
-                            if (renderCamera) {
+                            if (layer.affectedByCamera && renderCamera) {
                                 var cPos = renderCamera.getPosition();
                                 var cameraDepth = renderCamera.getDepth();
                                 // isFixed
@@ -1679,9 +1701,15 @@ var Render;
         }
     }
     Render.updateRender = updateRender;
-    function drawElement(context, elementToDraw, position, size) {
+    function drawElement(context, elementToDraw, position, size, secondPosition) {
+        if (secondPosition === void 0) { secondPosition = null; }
         position.x = Math.floor(position.x);
         position.y = Math.floor(position.y);
+        // Do the same calculations for the second position
+        if (secondPosition) {
+            secondPosition.x = Math.floor(secondPosition.x);
+            secondPosition.y = Math.floor(secondPosition.y);
+        }
         size.width = size.width || 1;
         size.height = size.height || 1;
         // Check if the element is out of the screen
@@ -1710,23 +1738,14 @@ var Render;
                 if (elementToDraw.isFlipped(null)) {
                     context.scale(-1, 1);
                     position.x = -position.x - size.width;
+                    if (secondPosition) {
+                        secondPosition.x = -secondPosition.x - size.width;
+                    }
                 }
                 var rotationPoint = elementToDraw.getRotationPoint();
                 if (elementToDraw.fixedToCenter) {
                     rotationPoint.x = position.x + (size.width / 2);
                     rotationPoint.y = position.y + (size.height / 2);
-                }
-                // debug mode for drawable
-                if (debugMode.active) {
-                    context.lineWidth = 2;
-                    context.strokeStyle = "#FF0000";
-                    context.beginPath();
-                    context.moveTo(position.x, position.y);
-                    context.lineTo(position.x, position.y + size.height);
-                    context.lineTo(position.x + size.width, position.y + size.height);
-                    context.lineTo(position.x + size.width, position.y);
-                    context.closePath();
-                    context.stroke();
                 }
                 if (elementToDraw.getRotation() != 0) {
                     context.translate(rotationPoint.x, rotationPoint.y);
@@ -1774,7 +1793,7 @@ var Render;
                         case "line":
                             context.beginPath();
                             context.moveTo(Math.ceil(rotationPoint.x - (size.width / 2)), Math.ceil(rotationPoint.y - (size.height / 2)));
-                            context.lineTo(elementToDraw.getTarget().x, elementToDraw.getTarget().y);
+                            context.lineTo(Math.ceil(secondPosition.x), Math.ceil(secondPosition.y));
                             context.closePath();
                             break;
                         case "text":
@@ -1878,6 +1897,17 @@ var Render;
                             context.drawImage(elementToDraw.getData(), cropArea.x, cropArea.y, cropArea.width, cropArea.height, Math.ceil(futurPosition.x), Math.ceil(futurPosition.y), Math.ceil(size.width), Math.ceil(size.height));
                         }
                     }
+                }
+                // debug mode for drawable
+                if (debugMode.active) {
+                    context.lineWidth = 4;
+                    context.strokeStyle = "#FF0000";
+                    var pos = position;
+                    if (elementToDraw.getShape() == "circle") {
+                        pos.x = pos.x - elementToDraw.getRadius();
+                        pos.y = pos.y - elementToDraw.getRadius();
+                    }
+                    context.strokeRect(pos.x, pos.y, size.width, size.height);
                 }
                 context.restore();
             }
@@ -1999,7 +2029,7 @@ var Render;
             return this.smooth;
         };
         return Layer;
-    })();
+    }());
     Render.Layer = Layer;
 })(Render || (Render = {}));
 var Render;
@@ -2064,7 +2094,7 @@ var Render;
             });
         };
         return Texture;
-    })();
+    }());
     Render.Texture = Texture;
 })(Render || (Render = {}));
 var Render;
@@ -2423,7 +2453,7 @@ var Render;
             return this.smooth;
         };
         return Drawable;
-    })();
+    }());
     Render.Drawable = Drawable;
 })(Render || (Render = {}));
 var Render;
@@ -2640,13 +2670,13 @@ var Render;
             }
         };
         return Sprite;
-    })(Render.Drawable);
+    }(Render.Drawable));
     Render.Sprite = Sprite;
 })(Render || (Render = {}));
 var Render;
 (function (Render) {
     var Draw;
-    (function (_Draw) {
+    (function (Draw_1) {
         /*	--------------------------------------------------- *\
                 [class] Draw()
         
@@ -2824,8 +2854,8 @@ var Render;
                 return this.shadowPosition;
             };
             return Draw;
-        })(Render.Drawable);
-        _Draw.Draw = Draw;
+        }(Render.Drawable));
+        Draw_1.Draw = Draw;
     })(Draw = Render.Draw || (Render.Draw = {}));
 })(Render || (Render = {}));
 var Render;
@@ -2861,7 +2891,7 @@ var Render;
                 this.setColor(parameters[4] || "#FFFFFF");
             }
             return Rectangle;
-        })(Draw.Draw);
+        }(Draw.Draw));
         Draw.Rectangle = Rectangle;
     })(Draw = Render.Draw || (Render.Draw = {}));
 })(Render || (Render = {}));
@@ -2917,7 +2947,7 @@ var Render;
                 return this.radius;
             };
             return Circle;
-        })(Draw.Draw);
+        }(Draw.Draw));
         Draw.Circle = Circle;
     })(Draw = Render.Draw || (Render.Draw = {}));
 })(Render || (Render = {}));
@@ -2981,7 +3011,7 @@ var Render;
                 }
             };
             return Polygon;
-        })(Draw.Draw);
+        }(Draw.Draw));
         Draw.Polygon = Polygon;
     })(Draw = Render.Draw || (Render.Draw = {}));
 })(Render || (Render = {}));
@@ -3038,7 +3068,7 @@ var Render;
                 return this.target;
             };
             return Line;
-        })(Draw.Draw);
+        }(Draw.Draw));
         Draw.Line = Line;
     })(Draw = Render.Draw || (Render.Draw = {}));
 })(Render || (Render = {}));
@@ -3233,7 +3263,7 @@ var Render;
                 this.isMultiline = value;
             };
             return Text;
-        })(Draw.Draw);
+        }(Draw.Draw));
         Draw.Text = Text;
     })(Draw = Render.Draw || (Render.Draw = {}));
 })(Render || (Render = {}));
@@ -3264,7 +3294,7 @@ var Render;
                 this.setStrokeSize(1);
             }
             return Point;
-        })(Draw.Draw);
+        }(Draw.Draw));
         Draw.Point = Point;
     })(Draw = Render.Draw || (Render.Draw = {}));
 })(Render || (Render = {}));
@@ -3272,7 +3302,7 @@ var Render;
         Grid
 \*    --------------------------------------------------- */
 var Grid;
-(function (_Grid) {
+(function (Grid_1) {
     /*    --------------------------------------------------- *\
             [class] Grid()
     
@@ -3295,6 +3325,7 @@ var Grid;
             this.type = "grid";
             this.tileSize = tileSize;
             this.table = [];
+            // Pregenerate the grid
             for (var i = 0; i < Math.ceil(this.size.width / this.tileSize); ++i) {
                 this.table[i] = [];
                 for (var k = 0; k < Math.ceil(this.size.height / this.tileSize); ++k) {
@@ -3454,8 +3485,8 @@ var Grid;
             this.position = { x: x, y: y };
         };
         return Grid;
-    })();
-    _Grid.Grid = Grid;
+    }());
+    Grid_1.Grid = Grid;
     /*    --------------------------------------------------- *\
             [class] Tile()
     
@@ -3499,8 +3530,8 @@ var Grid;
             return this.gridPos;
         };
         return Tile;
-    })(Elements);
-    _Grid.Tile = Tile;
+    }(Elements));
+    Grid_1.Tile = Tile;
 })(Grid || (Grid = {}));
 /*    --------------------------------------------------- *\
         Interface
@@ -3657,6 +3688,12 @@ var UI;
                     this.relativePosition = { x: x, y: y };
                     this.absolutePosition = { x: x, y: y };
                 }
+                /*if(parameters[0] == true){
+                    this.relativePosition = { x: x, y: y };
+                }
+                else if(parameters[0] == false){
+                    this.absolutePosition = { x: x, y: y };
+                }*/
                 for (var i in this.events) {
                     var position = this.getPosition(false);
                     this.events[i].x = position.x;
@@ -3853,7 +3890,7 @@ var UI;
             this.functionsToCall.leave.push(functionToCall);
         };
         return GUI;
-    })(Render.Draw.Draw);
+    }(Render.Draw.Draw));
     UI.GUI = GUI;
 })(UI || (UI = {}));
 var UI;
@@ -3885,7 +3922,7 @@ var UI;
             }
         }
         return Window;
-    })(UI.GUI);
+    }(UI.GUI));
     UI.Window = Window;
 })(UI || (UI = {}));
 var UI;
@@ -4008,7 +4045,7 @@ var UI;
             }
         };
         return Label;
-    })(UI.GUI);
+    }(UI.GUI));
     UI.Label = Label;
 })(UI || (UI = {}));
 var UI;
@@ -4088,7 +4125,7 @@ var UI;
             this.renderElements[0].setColor(color);
         };
         return Button;
-    })(UI.GUI);
+    }(UI.GUI));
     UI.Button = Button;
 })(UI || (UI = {}));
 var UI;
@@ -4188,7 +4225,7 @@ var UI;
             }
         };
         return Field;
-    })(UI.GUI);
+    }(UI.GUI));
     UI.Field = Field;
 })(UI || (UI = {}));
 var UI;
@@ -4273,7 +4310,7 @@ var UI;
             this.functionsToCallWhenCheck.push(functionToCall);
         };
         return Checkbox;
-    })(UI.GUI);
+    }(UI.GUI));
     UI.Checkbox = Checkbox;
 })(UI || (UI = {}));
 /*	--------------------------------------------------- *\
@@ -4516,7 +4553,7 @@ var Sounds;
             this.emit("unmute");
         };
         return Sound;
-    })(Events);
+    }(Events));
     Sounds.Sound = Sound;
 })(Sounds || (Sounds = {}));
 /*	--------------------------------------------------- *\
@@ -4599,7 +4636,7 @@ var Fonts;
             return this.path;
         };
         return FontFace;
-    })();
+    }());
     Fonts.FontFace = FontFace;
 })(Fonts || (Fonts = {}));
 /// <reference path="p2.d.ts" />
