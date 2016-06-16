@@ -5,10 +5,7 @@ module Sounds{
 
 	var elementsToDownload = [];
 	var soundEnabled = true;
-
-	if(!Global.isAndroid()){
-		var Media = null;
-	}
+	var soundList = [];
 
 	/*	--------------------------------------------------- *\
 			[function] setEnabled(value)
@@ -19,6 +16,25 @@ module Sounds{
 	\*	--------------------------------------------------- */
 	export function setEnabled(value : boolean){
 		soundEnabled = value;
+	}
+
+
+	/*	--------------------------------------------------- *\
+			[function] getPlayingSounds(value)
+	
+			* Get the current playing sounds *
+	
+			Return: playingSounds
+	\*	--------------------------------------------------- */
+	export function getPlayingSounds(){
+		var playingSounds = [];
+		for (var i = 0; i < soundList.length; ++i) {
+			if(soundList[i].playing){
+				playingSounds.push(soundList[i]);
+			}
+		}
+
+		return playingSounds;
 	}
 
 	/*	--------------------------------------------------- *\
@@ -54,30 +70,48 @@ module Sounds{
 			this.element = null;
 			this.isReady = false;
 			this.playing = false;
-			
+
+			var _this = this;
 			if(Global.isAndroid()){
-				this.element = new Media("/android_asset/www/" + path);			
+				if(typeof window['Media'] != "undefined"){
+					this.element = new window['Media']("/android_asset/www/" + path, function(){
+						_this.emit("end");
+					}, function(error){
+						console.log("Error", error);
+					});
+					setTimeout(function(){
+						_this.isReady = true;
+						_this.emit("ready");
+					}, 100);
+				}
 			}
 			else{
-				this.element = new Audio(path);
-				this.element.addEventListener("canplaythrough", () => {
-					this.isReady = true;
-					this.emit("ready");
-				});
+				if(typeof Audio != "undefined"){
+					this.element = new Audio(path);
+					this.element.addEventListener("canplaythrough", () => {
+						_this.isReady = true;
+						_this.emit("ready");
+					});
 
-				this.element.addEventListener("ended", () => {
-					this.emit("end");
-				});
+					this.element.addEventListener("ended", () => {
+						_this.emit("end");
+					});
+				}
 			}
 
 			this.path = path;
 
-			this.duration = this.element.duration;
-			this.volume = this.element.volume || 1;
+			this.duration = 0;
+			this.volume = 1;
+			if(this.element){
+				this.duration = this.element['duration'];
+				this.volume = this.element['volume'];
+			}
 			this.currentTime = 0;
 			this.muted = false;
 			this.muteTemp = 1;
 
+			soundList.push(this);
 		}
 
 		/*	--------------------------------------------------- *\
@@ -135,7 +169,7 @@ module Sounds{
 		setVolume(volume : number){
 			if(volume >= 0){
 				this.volume = volume;
-				if(Media != undefined && Media.prototype.setVolume){
+				if(typeof window['Media'] != "undefined"){
 					this.element.setVolume(volume);
 				}
 				else{
@@ -155,7 +189,7 @@ module Sounds{
 		\*	--------------------------------------------------- */
 		setCurrentTime(time : number){
 			this.currentTime = time;
-			if(Media != undefined){
+			if (typeof window['Media'] != "undefined") {
 				this.element.seekTo(time);
 			}
 			else{
