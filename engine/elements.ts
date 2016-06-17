@@ -10,19 +10,19 @@ var collisionNumber = 1;
 \*    --------------------------------------------------- */
 class Elements extends p2.Body{
 
-    haveCollision: boolean;
-    backupShape: any;
+    public haveCollision: boolean;
+    public backupShape: any;
 
-    drawables : any;
-    eType: string;
-    datas: any[];
-    static: boolean;
-    shapeAngle: number;
-    depth: number;
-
-    canCollide: string[];
-    colGroup: number;
-    isSensor: boolean;
+    public drawables : any;
+    public eType: string;
+    public datas: any[];
+    public static: boolean;
+    public shapeAngle: number;
+    public depth: number;
+    
+    public canCollide: string[];
+    public colGroup: number;
+    public isSensor: boolean;
 
     /*    --------------------------------------------------- *\
             [function] constructor()
@@ -144,15 +144,21 @@ class Elements extends p2.Body{
     }
 
     /*    --------------------------------------------------- *\
-            [function] setPosition(x, y)
+            [function] setPosition(x (point), y)
     
             * Set la position de l'element *
     
             Return: nil
     \*    --------------------------------------------------- */
-    setPosition(x : number, y : number){
-        this.position[0] = x;
-        this.position[1] = y;
+    setPosition(x : any, y? : number){
+        if(x instanceof Point){
+            this.position[0] = x.x;
+            this.position[1] = x.y;
+        }
+        else{
+            this.position[0] = x;
+            this.position[1] = y;
+        }
         
         if(this.getAssignedDrawables() != 0){
             for (var i = 0; i < this.getAssignedDrawables().length; ++i) {
@@ -221,8 +227,8 @@ class Elements extends p2.Body{
     
             Return: position
     \*    --------------------------------------------------- */
-    getPosition(){
-        return {x : this.position[0], y : this.position[1]};
+    getPosition():Point{
+        return new Point(this.position[0], this.position[1]);
     }
 
     /*    --------------------------------------------------- *\

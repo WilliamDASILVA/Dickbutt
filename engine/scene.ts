@@ -6,7 +6,7 @@
 \*	--------------------------------------------------- */
 class Scene{
 	
-	origin: any;
+	origin: Point;
 
 	/*	--------------------------------------------------- *\
 			[function] constructor()
@@ -16,7 +16,7 @@ class Scene{
 			Return: nil
 	\*	--------------------------------------------------- */
 	constructor(){
-		this.origin = {x : 0, y : 0};
+		this.origin = new Point(0,0);
 	}
 
 	/*	--------------------------------------------------- *\
@@ -26,7 +26,7 @@ class Scene{
 	
 			Return: origin
 	\*	--------------------------------------------------- */
-	getOrigin():any{
+	getOrigin():Point{
 		return this.origin;
 	}
 

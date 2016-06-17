@@ -20,14 +20,19 @@ var Global;
     }
     Global.getScreenSize = getScreenSize;
     /*	--------------------------------------------------- *\
-            [function] getDistanceBetween2Points(xA, xB, yA, yB)
+            [function] getDistanceBetween2Points(xA (pointA), xB (pointB), yA, yB)
     
             * Retourne la distance entre deux points *
     
             Return: distance
     \*	--------------------------------------------------- */
     function getDistanceBetween2Points(aX, aY, bX, bY) {
-        return Math.sqrt(Math.pow((bY - aY), 2) + Math.pow((bX - aX), 2));
+        if (isNaN(aX) && aX.constructor == Point && isNaN(aY) && aY.constructor == Point) {
+            return Math.sqrt(Math.pow((aY.x - aX.x), 2) + Math.pow((aY.y - aX.y), 2));
+        }
+        else {
+            return Math.sqrt(Math.pow((bY - aY), 2) + Math.pow((bX - aX), 2));
+        }
     }
     Global.getDistanceBetween2Points = getDistanceBetween2Points;
     /*    --------------------------------------------------- *\
@@ -41,7 +46,7 @@ var Global;
         var camPosition = cam.getOrigin();
         var actual = { x: camPosition.x + screenX, y: camPosition.y + screenY };
         var p = { x: actual.x, y: actual.y };
-        return { x: p.x, y: p.y };
+        return new Point(p.x, p.y);
     }
     Global.getPositionFromScreen = getPositionFromScreen;
     /*    --------------------------------------------------- *\
@@ -53,18 +58,23 @@ var Global;
     \*    --------------------------------------------------- */
     function getPositionFromWorld(worldX, worldY, cam) {
         var camPosition = cam.getOrigin();
-        return { x: worldX - camPosition.x, y: worldY - camPosition.y };
+        return new Point(worldX - camPosition.x, worldY - camPosition.y);
     }
     Global.getPositionFromWorld = getPositionFromWorld;
     /*    --------------------------------------------------- *\
-            [function] findRotation(x, y, x, y)
+            [function] findRotation(x (pointA), y (pointB), x, y)
     
             * Find the rotation between two points *
     
             Return: rotation
     \*    --------------------------------------------------- */
     function findRotation(x1, y1, x2, y2) {
-        var t = -(Math.atan2(x2 - x1, y2 - y1) * (180 / Math.PI));
+        if (x1 instanceof Point && y1 instanceof Point) {
+            var t = -(Math.atan2(y1.x - x1.y, y1.y - x1.y) * (180 / Math.PI));
+        }
+        else {
+            var t = -(Math.atan2(x2 - x1, y2 - y1) * (180 / Math.PI));
+        }
         if (t < 0) {
             t += 360;
         }
@@ -201,6 +211,56 @@ var Global;
     }());
     Global.XHR = XHR;
 })(Global || (Global = {}));
+var Point = (function () {
+    function Point(x, y) {
+        // If the two variables are points, we add both points to create a new one
+        if (x instanceof Point && y instanceof Point) {
+            this.x = x.x + y.x;
+            this.y = x.y + y.y;
+        }
+        this.x = x || 0;
+        this.y = y || 0;
+    }
+    Point.prototype.set = function (x, y) {
+        this.x = x;
+        this.y = y;
+    };
+    Point.prototype.setX = function (x) {
+        this.x = x;
+    };
+    Point.prototype.getX = function () {
+        return this.x;
+    };
+    Point.prototype.setY = function (y) {
+        this.y = y;
+    };
+    Point.prototype.getY = function () {
+        return this.y;
+    };
+    Point.prototype.add = function (x, y) {
+        this.x += x;
+        this.y += y;
+    };
+    Point.prototype.addX = function (x) {
+        this.x += x;
+    };
+    Point.prototype.addY = function (y) {
+        this.y += y;
+    };
+    return Point;
+}());
+var Vector = (function () {
+    function Vector(position) {
+        this.position = position;
+    }
+    Vector.prototype.getLength = function () {
+        return Math.sqrt(this.position.x * this.position.x + this.position.y * this.position.y);
+    };
+    Vector.prototype.getPosition = function () {
+        return this.position;
+    };
+    return Vector;
+}());
 /*	--------------------------------------------------- *\
         [class] Events()
 
@@ -392,15 +452,21 @@ var Elements = (function (_super) {
         }
     };
     /*    --------------------------------------------------- *\
-            [function] setPosition(x, y)
+            [function] setPosition(x (point), y)
     
             * Set la position de l'element *
     
             Return: nil
     \*    --------------------------------------------------- */
     Elements.prototype.setPosition = function (x, y) {
-        this.position[0] = x;
-        this.position[1] = y;
+        if (x instanceof Point) {
+            this.position[0] = x.x;
+            this.position[1] = x.y;
+        }
+        else {
+            this.position[0] = x;
+            this.position[1] = y;
+        }
         if (this.getAssignedDrawables() != 0) {
             for (var i = 0; i < this.getAssignedDrawables().length; ++i) {
                 var offset = this.getAssignedDrawables()[i].getOffset();
@@ -465,7 +531,7 @@ var Elements = (function (_super) {
             Return: position
     \*    --------------------------------------------------- */
     Elements.prototype.getPosition = function () {
-        return { x: this.position[0], y: this.position[1] };
+        return new Point(this.position[0], this.position[1]);
     };
     /*    --------------------------------------------------- *\
             [function] assignDrawable(drawable)
@@ -723,7 +789,7 @@ var Scene = (function () {
             Return: nil
     \*	--------------------------------------------------- */
     function Scene() {
-        this.origin = { x: 0, y: 0 };
+        this.origin = new Point(0, 0);
     }
     /*	--------------------------------------------------- *\
             [function] getOrigin()
@@ -756,10 +822,10 @@ var Camera = (function (_super) {
     function Camera(scene) {
         _super.call(this);
         this.parentScene = scene;
-        this.position = { x: 0, y: 0 };
+        this.position = new Point(0, 0);
         this.depth = 1;
-        this.depthPosition = { x: 0, y: 0 };
-        this.rotationPoint = { x: 0, y: 0 };
+        this.depthPosition = new Point(0, 0);
+        this.rotationPoint = new Point(0, 0);
         this.angle = 0;
         this.isCameraLock = false;
         this.cameraLockOn = null;
@@ -771,9 +837,14 @@ var Camera = (function (_super) {
     
             Return: nil
     \*	--------------------------------------------------- */
-    Camera.prototype.setPosition = function (x, y) {
-        var sceneOrigin = this.parentScene.getOrigin();
-        this.position = { x: sceneOrigin.x + x, y: sceneOrigin.y + y };
+    Camera.prototype.setPosition = function (position, y) {
+        var originPoint = this.parentScene.getOrigin();
+        if (position instanceof Point) {
+            this.position = new Point(originPoint, position);
+        }
+        else {
+            this.position = new Point(position, y);
+        }
     };
     /*	--------------------------------------------------- *\
             [function] getPosition()
@@ -812,8 +883,8 @@ var Camera = (function (_super) {
     
             Return: nil
     \*	--------------------------------------------------- */
-    Camera.prototype.setDepthPosition = function (x, y) {
-        this.depthPosition = { x: x, y: y };
+    Camera.prototype.setDepthPosition = function (position) {
+        this.depthPosition = position;
     };
     /*	--------------------------------------------------- *\
             [function] getDepthPosition()
@@ -832,8 +903,8 @@ var Camera = (function (_super) {
     
             Return: nil
     \*	--------------------------------------------------- */
-    Camera.prototype.setRotationPoint = function (x, y) {
-        this.rotationPoint = { x: x, y: y };
+    Camera.prototype.setRotationPoint = function (position) {
+        this.rotationPoint = position;
     };
     /*	--------------------------------------------------- *\
             [function] getRotationPoint()
@@ -873,7 +944,7 @@ var Camera = (function (_super) {
             Return: position
     \*	--------------------------------------------------- */
     Camera.prototype.getOrigin = function () {
-        return { x: this.position.x - (Global.getScreenSize().width / 2), y: this.position.y - (Global.getScreenSize().height / 2) };
+        return new Point(this.position.x - (Global.getScreenSize().width / 2), this.position.y - (Global.getScreenSize().height / 2));
     };
     /*	--------------------------------------------------- *\
             [function] lockTo(element)
@@ -4674,6 +4745,8 @@ var Fonts;
 /// <reference path="p2.d.ts" />
 /// <reference path="tween.d.ts" />
 /// <reference path="global.ts" />
+/// <reference path="global/point.ts" />
+/// <reference path="global/vector.ts" />
 /// <reference path="events.ts" />
 /// <reference path="elements.ts" />
 /// <reference path="scene.ts" />

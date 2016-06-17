@@ -5,16 +5,10 @@ declare module Global {
         width: number;
         height: number;
     };
-    function getDistanceBetween2Points(aX: number, aY: number, bX: number, bY: number): number;
-    function getPositionFromScreen(screenX: any, screenY: any, cam: any): {
-        x: any;
-        y: any;
-    };
-    function getPositionFromWorld(worldX: any, worldY: any, cam: any): {
-        x: number;
-        y: number;
-    };
-    function findRotation(x1: any, y1: any, x2: any, y2: any): number;
+    function getDistanceBetween2Points(aX: any, aY: any, bX?: number, bY?: number): number;
+    function getPositionFromScreen(screenX: any, screenY: any, cam: any): Point;
+    function getPositionFromWorld(worldX: any, worldY: any, cam: any): Point;
+    function findRotation(x1: any, y1: any, x2?: number, y2?: number): number;
     function getRandom(min: number, max: number): number;
     function getTrunc(x: number): number;
     function isAndroid(): boolean;
@@ -26,6 +20,25 @@ declare module Global {
         ready(functionToCall: any): void;
         load(functionToCall: any): void;
     }
+}
+declare class Point {
+    x: number;
+    y: number;
+    constructor(x?: any, y?: any);
+    set(x: number, y: number): void;
+    setX(x: number): void;
+    getX(): number;
+    setY(y: number): void;
+    getY(): number;
+    add(x: number, y: number): void;
+    addX(x: number): void;
+    addY(y: number): void;
+}
+declare class Vector {
+    position: Point;
+    constructor(position: Point);
+    getLength(): number;
+    getPosition(): Point;
 }
 declare class Events {
     events: any;
@@ -52,13 +65,10 @@ declare class Elements extends p2.Body {
     getDepth(): number;
     setDepth(depth: number): void;
     addShape(shape: any, offset?: any, angle?: any): void;
-    setPosition(x: number, y: number): void;
+    setPosition(x: any, y?: number): void;
     setRotation(angle: number): void;
     getRotation(): number;
-    getPosition(): {
-        x: number;
-        y: number;
-    };
+    getPosition(): Point;
     assignDrawable(drawable: any): void;
     getAssignedDrawables(): any;
     setType(eType: string): void;
@@ -77,9 +87,9 @@ declare class Elements extends p2.Body {
     destroy(): void;
 }
 declare class Scene {
-    origin: any;
+    origin: Point;
     constructor();
-    getOrigin(): any;
+    getOrigin(): Point;
 }
 declare class Camera extends Scene {
     private position;
@@ -91,20 +101,17 @@ declare class Camera extends Scene {
     private isCameraLock;
     private cameraLockOn;
     constructor(scene: any);
-    setPosition(x: number, y: number): void;
-    getPosition(): any;
+    setPosition(position: any, y?: number): void;
+    getPosition(): Point;
     getDepth(): number;
     setDepth(depth: number): void;
-    setDepthPosition(x: number, y: number): void;
-    getDepthPosition(): any;
-    setRotationPoint(x: number, y: number): void;
-    getRotationPoint(): any;
+    setDepthPosition(position: Point): void;
+    getDepthPosition(): Point;
+    setRotationPoint(position: Point): void;
+    getRotationPoint(): Point;
     setRotation(angle: number): void;
     getRotation(): number;
-    getOrigin(): {
-        x: number;
-        y: number;
-    };
+    getOrigin(): Point;
     lockTo(element: Elements): void;
     unlock(): void;
     getLockElement(): Elements;
@@ -495,6 +502,7 @@ declare module UI {
 }
 declare module Sounds {
     function setEnabled(value: boolean): void;
+    function getPlayingSounds(): any[];
     class Sound extends Events {
         element: any;
         path: string;

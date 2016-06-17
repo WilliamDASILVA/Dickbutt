@@ -15,14 +15,19 @@ module Global{
     }
 
 	/*	--------------------------------------------------- *\
-			[function] getDistanceBetween2Points(xA, xB, yA, yB)
+			[function] getDistanceBetween2Points(xA (pointA), xB (pointB), yA, yB)
 	
 			* Retourne la distance entre deux points *
 	
 			Return: distance
 	\*	--------------------------------------------------- */
-	export function getDistanceBetween2Points(aX : number, aY : number, bX : number, bY : number):number{
-		return Math.sqrt(Math.pow((bY - aY), 2) + Math.pow((bX - aX), 2));
+	export function getDistanceBetween2Points(aX : any, aY : any, bX? : number, bY? : number):number{
+        if(isNaN(aX) && aX.constructor == Point && isNaN(aY) && aY.constructor == Point){
+		    return Math.sqrt(Math.pow((aY.x - aX.x), 2) + Math.pow((aY.y - aX.y), 2));
+        }
+        else{
+            return Math.sqrt(Math.pow((bY - aY), 2) + Math.pow((bX - aX), 2));
+        }
 	}
 
     /*    --------------------------------------------------- *\
@@ -32,11 +37,11 @@ module Global{
     
             Return: position
     \*    --------------------------------------------------- */
-    export function getPositionFromScreen(screenX, screenY, cam){
+    export function getPositionFromScreen(screenX, screenY, cam):Point{
         var camPosition = cam.getOrigin();
         var actual = { x: camPosition.x + screenX, y: camPosition.y + screenY };
         var p = {x: actual.x, y: actual.y};
-        return { x: p.x, y: p.y };
+        return new Point(p.x, p.y);
     }
 
     /*    --------------------------------------------------- *\
@@ -46,20 +51,26 @@ module Global{
     
             Return: position
     \*    --------------------------------------------------- */
-    export function getPositionFromWorld(worldX, worldY, cam){
+    export function getPositionFromWorld(worldX, worldY, cam):Point{
         var camPosition = cam.getOrigin();
-        return { x: worldX - camPosition.x, y: worldY - camPosition.y};
+        return new Point(worldX - camPosition.x, worldY - camPosition.y);
     }
 
     /*    --------------------------------------------------- *\
-            [function] findRotation(x, y, x, y)
+            [function] findRotation(x (pointA), y (pointB), x, y)
     
             * Find the rotation between two points *
     
             Return: rotation
     \*    --------------------------------------------------- */
-    export function findRotation(x1,y1,x2,y2){
-        var t = -(Math.atan2(x2 - x1, y2 - y1) * (180/Math.PI));
+    export function findRotation(x1 : any,y1 : any, x2? : number,y2? : number): number{
+        if(x1 instanceof Point && y1 instanceof Point){
+            var t = -(Math.atan2(y1.x - x1.y, y1.y-x1.y) * (180/Math.PI));
+        }
+        else{
+            var t = -(Math.atan2(x2 - x1, y2 - y1) * (180/Math.PI));
+
+        }
         if(t < 0){
             t += 360;
         }

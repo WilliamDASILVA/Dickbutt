@@ -7,12 +7,12 @@
 \*	--------------------------------------------------- */
 class Camera extends Scene{
 
-	private position : any;
+	private position : Point;
 	private parentScene : any;
 	private depth: number;
-	private depthPosition: any;
+	private depthPosition: Point;
 	private angle: number;
-	private rotationPoint: any;
+	private rotationPoint: Point;
 	private isCameraLock: boolean;
 	private cameraLockOn: Elements;
 
@@ -26,11 +26,11 @@ class Camera extends Scene{
 	constructor(scene:any){
 		super();
 		this.parentScene = scene;
-        this.position = { x: 0, y: 0 };
+        this.position = new Point(0,0);
 		this.depth = 1;
-		this.depthPosition = { x: 0, y: 0 };
+		this.depthPosition = new Point(0,0);
 
-		this.rotationPoint = { x: 0, y: 0 };
+		this.rotationPoint = new Point(0,0);
 		this.angle = 0;
 
 		this.isCameraLock = false;
@@ -44,9 +44,15 @@ class Camera extends Scene{
 	
 			Return: nil
 	\*	--------------------------------------------------- */
-	setPosition(x : number, y : number){
-		var sceneOrigin = this.parentScene.getOrigin();
-		this.position = {x : sceneOrigin.x + x, y : sceneOrigin.y + y};
+	setPosition(position : any, y? : number){
+		var originPoint = this.parentScene.getOrigin();
+
+		if(position instanceof Point){
+        	this.position = new Point(originPoint, position);
+		}
+		else{
+            this.position = new Point(position, y);
+		}
 	}
 
 
@@ -57,7 +63,7 @@ class Camera extends Scene{
 	
 			Return: position
 	\*	--------------------------------------------------- */
-	getPosition(){
+	getPosition():Point{
 		return this.position;
 	}
 
@@ -90,8 +96,8 @@ class Camera extends Scene{
 	
 			Return: nil
 	\*	--------------------------------------------------- */
-	setDepthPosition(x : number, y : number){
-		this.depthPosition = { x: x, y: y};
+	setDepthPosition(position : Point){
+		this.depthPosition = position;
 	}
 
 	/*	--------------------------------------------------- *\
@@ -101,7 +107,7 @@ class Camera extends Scene{
 	
 			Return: depthPosition
 	\*	--------------------------------------------------- */
-	getDepthPosition(){
+	getDepthPosition():Point{
 		return this.depthPosition;
 	}
 
@@ -112,8 +118,8 @@ class Camera extends Scene{
 	
 			Return: nil
 	\*	--------------------------------------------------- */
-	setRotationPoint(x : number, y : number){
-		this.rotationPoint = { x: x, y: y };
+	setRotationPoint(position : Point){
+		this.rotationPoint = position;
 	}
 
 	/*	--------------------------------------------------- *\
@@ -123,7 +129,7 @@ class Camera extends Scene{
 	
 			Return: nil
 	\*	--------------------------------------------------- */
-	getRotationPoint(){
+	getRotationPoint():Point{
 		return this.rotationPoint;
 	}
 
@@ -156,8 +162,8 @@ class Camera extends Scene{
 	
 			Return: position
 	\*	--------------------------------------------------- */
-	getOrigin(){
-        return { x: this.position.x - (Global.getScreenSize().width / 2), y: this.position.y - (Global.getScreenSize().height / 2) };
+	getOrigin():Point{
+        return new Point(this.position.x - (Global.getScreenSize().width / 2), this.position.y - (Global.getScreenSize().height / 2));
 	}
 
 	/*	--------------------------------------------------- *\

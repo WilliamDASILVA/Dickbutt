@@ -2,6 +2,10 @@
 /// <reference path="tween.d.ts" />
 
 /// <reference path="global.ts" />
+/// <reference path="global/point.ts" />
+/// <reference path="global/vector.ts" />
+
+
 /// <reference path="events.ts" />
 /// <reference path="elements.ts" />
 /// <reference path="scene.ts" />

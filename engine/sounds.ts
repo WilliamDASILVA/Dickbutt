@@ -18,7 +18,6 @@ module Sounds{
 		soundEnabled = value;
 	}
 
-
 	/*	--------------------------------------------------- *\
 			[function] getPlayingSounds(value)
 	
