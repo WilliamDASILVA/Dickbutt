@@ -161,7 +161,8 @@ module Render{
 		var elements = layer.getElements();
 
         if(context && canvas){
-    		context.clearRect(0,0, canvas.width, canvas.height);
+			var screenSize = Global.getScreenSize();
+    		context.clearRect(0,0, screenSize.width, screenSize.height);
 			context.save();
 
 			var camera = getCamera();

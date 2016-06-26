@@ -213,11 +213,6 @@ var Global;
 })(Global || (Global = {}));
 var Point = (function () {
     function Point(x, y) {
-        // If the two variables are points, we add both points to create a new one
-        if (x instanceof Point && y instanceof Point) {
-            this.x = x.x + y.x;
-            this.y = x.y + y.y;
-        }
         this.x = x || 0;
         this.y = y || 0;
     }
@@ -237,9 +232,15 @@ var Point = (function () {
     Point.prototype.getY = function () {
         return this.y;
     };
-    Point.prototype.add = function (x, y) {
-        this.x += x;
-        this.y += y;
+    Point.prototype.add = function (point) {
+        return new Point(this.x + point.x, this.y + point.y);
+    };
+    Point.prototype.diff = function (point) {
+        return new Point(this.x - point.x, this.y - point.y);
+    };
+    Point.prototype.remplace = function (point) {
+        this.x = point.x;
+        this.y = point.y;
     };
     Point.prototype.addX = function (x) {
         this.x += x;
@@ -840,7 +841,7 @@ var Camera = (function (_super) {
     Camera.prototype.setPosition = function (position, y) {
         var originPoint = this.parentScene.getOrigin();
         if (position instanceof Point) {
-            this.position = new Point(originPoint, position);
+            this.position = position.add(originPoint);
         }
         else {
             this.position = new Point(position, y);
@@ -996,6 +997,9 @@ var Camera = (function (_super) {
 var Input;
 (function (Input) {
     var pressedKeys = [];
+    var settings = {
+        holdTime: 300
+    };
     /*	--------------------------------------------------- *\
             [class] MouseMove()
     
@@ -1046,6 +1050,7 @@ var Input;
             this.y = y;
             this.width = width;
             this.height = height;
+            var holdStart = null;
             var cache = this;
             document.addEventListener("mouseup", function (e) {
                 if (e.clientX >= cache.x && e.clientX <= cache.x + cache.width && e.clientY >= cache.y && e.clientY <= cache.y + cache.height) {
@@ -1062,6 +1067,7 @@ var Input;
                             break;
                     }
                     cache.emit("up", e.clientX, e.clientY, button);
+                    holdStart = false;
                 }
             });
             document.addEventListener("mousedown", function (e) {
@@ -1079,6 +1085,13 @@ var Input;
                             break;
                     }
                     cache.emit("down", e.clientX, e.clientY, button);
+                    holdStart = true;
+                    var eCache = e;
+                    setTimeout(function () {
+                        if (holdStart) {
+                            cache.emit("hold", eCache.clientX, eCache.clientY, button);
+                        }
+                    }, settings.holdTime);
                 }
             });
         }
@@ -1192,11 +1205,20 @@ var Input;
             this.y = y;
             this.width = width;
             this.height = height;
+            var holdStart = false;
             var cache = this;
             document.body.addEventListener("touchstart", function (e) {
                 for (var i = e.changedTouches.length - 1; i >= 0; i--) {
                     if (e.changedTouches[i].clientX >= cache.x && e.changedTouches[i].clientX <= cache.x + cache.width && e.changedTouches[i].clientY >= cache.y && e.changedTouches[i].clientY <= cache.y + cache.height) {
-                        cache.emit("press", e.changedTouches[i].clientX, e.changedTouches[i].clientY, e.touches);
+                        var eventCache = e.changedTouches[i];
+                        cache.emit("press", eventCache.clientX, eventCache.clientY, e.touches);
+                        // hold
+                        holdStart = true;
+                        setTimeout(function () {
+                            if (holdStart) {
+                                cache.emit("hold", eventCache.clientX, eventCache.clientY, e.touches);
+                            }
+                        }, settings.holdTime);
                     }
                 }
             }, false);
@@ -1204,6 +1226,8 @@ var Input;
                 for (var i = e.changedTouches.length - 1; i >= 0; i--) {
                     if (e.changedTouches[i].clientX >= cache.x && e.changedTouches[i].clientX <= cache.x + cache.width && e.changedTouches[i].clientY >= cache.y && e.changedTouches[i].clientY <= cache.y + cache.height) {
                         cache.emit("release", e.changedTouches[i].clientX, e.changedTouches[i].clientY, e.touches);
+                        // hold
+                        holdStart = false;
                     }
                 }
             }, false);
@@ -1586,7 +1610,8 @@ var Render;
         var context = layer.getContext();
         var elements = layer.getElements();
         if (context && canvas) {
-            context.clearRect(0, 0, canvas.width, canvas.height);
+            var screenSize = Global.getScreenSize();
+            context.clearRect(0, 0, screenSize.width, screenSize.height);
             context.save();
             var camera = getCamera();
             // Smooth

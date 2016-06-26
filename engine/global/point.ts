@@ -4,13 +4,6 @@ class Point{
     public y: number;
 
 	constructor(x? : any, y? : any){
-
-		// If the two variables are points, we add both points to create a new one
-		if(x instanceof Point && y instanceof Point){
-            this.x = x.x + y.x;
-            this.y = x.y + y.y;
-		}
-
         this.x = x || 0;
         this.y = y || 0;
 	}
@@ -36,9 +29,17 @@ class Point{
         return this.y;
 	}
 
-	add(x : number, y : number){
-        this.x += x;
-        this.y += y;
+	add(point : Point){
+		return new Point(this.x + point.x, this.y + point.y);
+	}
+
+	diff(point : Point){
+		return new Point(this.x - point.x, this.y - point.y);
+	}
+
+	remplace(point : Point){
+		this.x = point.x;
+		this.y = point.y;
 	}
 
 	addX(x : number){

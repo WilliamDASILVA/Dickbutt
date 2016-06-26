@@ -30,7 +30,9 @@ declare class Point {
     getX(): number;
     setY(y: number): void;
     getY(): number;
-    add(x: number, y: number): void;
+    add(point: Point): Point;
+    diff(point: Point): Point;
+    remplace(point: Point): void;
     addX(x: number): void;
     addY(y: number): void;
 }
@@ -92,7 +94,7 @@ declare class Scene {
     getOrigin(): Point;
 }
 declare class Camera extends Scene {
-    private position;
+    position: Point;
     private parentScene;
     private depth;
     private depthPosition;

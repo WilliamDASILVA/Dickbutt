@@ -4,6 +4,9 @@
 module Input{
 	
     var pressedKeys = [];
+    var settings = {
+    	holdTime : 300
+    };
 
 
 	/*	--------------------------------------------------- *\
@@ -61,6 +64,8 @@ module Input{
             this.width = width;
             this.height = height;
 
+            var holdStart = null;
+
 			var cache = this;
 			document.addEventListener("mouseup", (e) => {
 				if(e.clientX >= cache.x && e.clientX <= cache.x + cache.width && e.clientY >= cache.y && e.clientY <= cache.y + cache.height) {
@@ -77,6 +82,7 @@ module Input{
 							break;
 					}
 					cache.emit("up", e.clientX, e.clientY, button);
+					holdStart = false;
 				}
 			});
 
@@ -95,6 +101,15 @@ module Input{
 							break;
 					}
 					cache.emit("down", e.clientX, e.clientY, button);
+
+					holdStart = true;
+					var eCache = e;
+
+					setTimeout(() => {
+						if(holdStart){
+							cache.emit("hold", eCache.clientX, eCache.clientY, button);
+						}
+					}, settings.holdTime);
 				}
 			});
 		}
@@ -220,11 +235,23 @@ module Input{
 			this.width = width;
 			this.height = height;
 
+			var holdStart = false;
+
 			var cache = this;
 			document.body.addEventListener("touchstart", function(e : any){
                 for (var i = e.changedTouches.length - 1; i >= 0; i--) {
 					if(e.changedTouches[i].clientX >= cache.x && e.changedTouches[i].clientX <= cache.x + cache.width && e.changedTouches[i].clientY >= cache.y && e.changedTouches[i].clientY <= cache.y + cache.height){
-						cache.emit("press", e.changedTouches[i].clientX, e.changedTouches[i].clientY, e.touches);
+						var eventCache = e.changedTouches[i];
+						cache.emit("press", eventCache.clientX, eventCache.clientY, e.touches);
+
+						// hold
+						holdStart = true;
+
+						setTimeout(() => {
+							if(holdStart){
+								cache.emit("hold", eventCache.clientX, eventCache.clientY, e.touches);
+							}
+						}, settings.holdTime);
 					}
                 }
 			}, false);
@@ -233,6 +260,9 @@ module Input{
 				for (var i = e.changedTouches.length - 1; i >= 0; i--) {
 					if(e.changedTouches[i].clientX >= cache.x && e.changedTouches[i].clientX <= cache.x + cache.width && e.changedTouches[i].clientY >= cache.y && e.changedTouches[i].clientY <= cache.y + cache.height){
 						cache.emit("release", e.changedTouches[i].clientX, e.changedTouches[i].clientY, e.touches);
+
+						// hold
+						holdStart = false;
 					}
 				}
 			}, false);
@@ -245,6 +275,7 @@ module Input{
 				}
 				e.preventDefault();
 			}, false);
+
 		}
 
 		/*	--------------------------------------------------- *\

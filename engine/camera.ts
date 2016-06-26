@@ -7,7 +7,7 @@
 \*	--------------------------------------------------- */
 class Camera extends Scene{
 
-	private position : Point;
+	public position : Point;
 	private parentScene : any;
 	private depth: number;
 	private depthPosition: Point;
@@ -48,7 +48,7 @@ class Camera extends Scene{
 		var originPoint = this.parentScene.getOrigin();
 
 		if(position instanceof Point){
-        	this.position = new Point(originPoint, position);
+			this.position = position.add(originPoint);
 		}
 		else{
             this.position = new Point(position, y);
