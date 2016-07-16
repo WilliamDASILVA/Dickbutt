@@ -11,7 +11,17 @@ module Global{
             Return: screenX, screenY
     \*    --------------------------------------------------- */
     export function getScreenSize(){
-        return { width: window.innerWidth, height: window.innerHeight };
+        var size = {
+            height : null,
+            width : null
+        };
+        if(typeof document.body != "undefined"){
+            size = { width: document.body.offsetWidth, height: document.body.offsetHeight };
+        }
+        else{
+            size = { width: window.innerWidth, height: window.innerHeight };
+        }
+        return size;
     }
 
 	/*	--------------------------------------------------- *\

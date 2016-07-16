@@ -28,10 +28,18 @@ module Render{
             this.canvasElement = document.createElement("canvas");
             this.context = this.canvasElement.getContext("2d");
 
-            this.canvasElement.width = window.innerWidth;
-            this.canvasElement.height = window.innerHeight;
+            var screenSize = Global.getScreenSize();
 
+            this.canvasElement.width = screenSize.width;
+            this.canvasElement.height = screenSize.height;
             document.body.appendChild(this.canvasElement);
+
+
+            window.addEventListener("resize", () => {
+                var screenSize = Global.getScreenSize();
+                this.canvasElement.width = screenSize.width;
+                this.canvasElement.height = screenSize.height;
+            });
 
             this.render();
 

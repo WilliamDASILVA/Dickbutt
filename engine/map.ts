@@ -101,7 +101,7 @@ module Maps{
 			* Charger une map *
 	
 	\*	--------------------------------------------------- */
-	export class Load{
+	export class Load extends Events{
 		
 		mapName: string;
 		mapType: string;
@@ -125,6 +125,8 @@ module Maps{
 				Return: nil
 		\*	--------------------------------------------------- */
 		constructor(name: string, grid: any, world : any){
+			super();
+
 			this.mapSpawns = [];
 			this.mapPickups = [];
 
@@ -193,7 +195,7 @@ module Maps{
 			            var tileImage = data.tilesets[i].image;
 			            var txt: any;
 			            txt = {};
-			            txt.src = "maps/" + theMap.getName() + "/" + tileImage;
+			            txt.src = "assets/tileset.png";
 			            txt.name = "tileset";
 			            Render.add(txt.src);
 			            texturesToCreate.push(txt);
@@ -201,7 +203,7 @@ module Maps{
 			        }
 			    }
 			    
-			    for (var p = data.sprites.length - 1; p >= 0; p--) {
+			    /*for (var p = data.sprites.length - 1; p >= 0; p--) {
 			        if(data.sprites[p]){
 			            var name = data.sprites[p].name;
 			            var src = data.sprites[p].src;
@@ -209,13 +211,13 @@ module Maps{
 			            var txt: any;
 			            txt = {};
 			            txt.name = "tile_" + name;
-			            txt.src = "maps/" + theMap.getName() + "/" + src;
+			            txt.src = "maps/" + name + "/" + src;
 
 			            Render.add(txt.src);
 			            texturesToCreate.push(txt);
 
 			        }
-			    }
+			    }*/
 
 			    for (var h = texturesToCreate.length - 1; h >= 0; h--) {
 			        this.textures[texturesToCreate[h].name] = new Render.Texture(texturesToCreate[h].src);
@@ -237,33 +239,30 @@ module Maps{
 
 			                    var prop = this.getProperties()[tile - 1];
 								var tileBody = null;
-			                    if(prop.collision != "false"){
-									tileBody = new Maps.Tile(this.world, this.grid, i * this.grid.getTileSize(), k * this.grid.getTileSize(), prop.collisionType, prop.collisionDirection);       
-			                    }
+								//if(prop){
+				                    
+		                        var tile_sprite = new Render.Sprite(this.textures['tileset'], 0, 0, this.grid.getTileSize(), this.grid.getTileSize(), 256, 256, 27);
+		                        tile_sprite.setFreeze(true);
+		                        tile_sprite.setDepth(-1);
 
-			                    var tile_sprite = null;
-			                    if (prop.sprite) {
-			                        tile_sprite = new Render.Sprite(this.textures['tile_' + prop.sprite], 0, 0, this.grid.getTileSize(), this.grid.getTileSize(), 256, 256, 4);
-			                    }
-			                    else{
-			                        tile_sprite = new Render.Sprite(this.textures['tileset'], 0, 0, this.grid.getTileSize(), this.grid.getTileSize(), 256, 256, 27);
-			                        tile_sprite.setFreeze(true);
-			                        tile_sprite.setDepth(-1);
-
-			                        tile_sprite.setFrameLine(prop.line);
-			                        tile_sprite.setCurrentFrame(prop.frame - 1);
-			                    }
+		                        tile_sprite.setFrameLine(prop.line);
+		                        tile_sprite.setCurrentFrame(prop.frame - 1);
+			                    
 			                    theTile.assignDrawable(tile_sprite);
-
-
 			                    // Spawn the player at the spawner
-			                    if (prop.line == 2 && prop.frame == 9) {
+			                    /*if (prop.line == 2 && prop.frame == 9) {
 									var spawn = {
 										x : i * this.grid.getTileSize(),
 										y : k * this.grid.getTileSize()
 									};
 									this.mapSpawns.push(spawn);
-			                    }
+			                    }*/
+								/*}
+								else{
+									console.log("prop fail");
+								}*/
+
+
 			                }
 			            }
 			        }

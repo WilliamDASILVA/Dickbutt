@@ -24,6 +24,8 @@ class Elements extends p2.Body{
     public colGroup: number;
     public isSensor: boolean;
 
+    private centred : boolean; // If the element is centred to the position
+
     /*    --------------------------------------------------- *\
             [function] constructor()
     
@@ -61,7 +63,18 @@ class Elements extends p2.Body{
             _elements.push(this);
         }
 
+        this.centred = false;
+
     }
+
+    setCentred(value : boolean){
+        this.centred = value;
+    }
+
+    isCentred(){
+        return this.centred;
+    }
+
     /*    --------------------------------------------------- *\
             [function] getDepth()
     
@@ -163,33 +176,24 @@ class Elements extends p2.Body{
         if(this.getAssignedDrawables() != 0){
             for (var i = 0; i < this.getAssignedDrawables().length; ++i) {
                 var offset = this.getAssignedDrawables()[i].getOffset();
-                this.getAssignedDrawables()[i].setPosition(x + offset.x, y + offset.y);
+                var size = this.getAssignedDrawables()[i].getSize();
+                if(this.isCentred()){
+                    this.getAssignedDrawables()[i].setPosition((x + offset.x) - size.width/2, (y + offset.y) - size.height / 2);
+                }
+                else{
+                    this.getAssignedDrawables()[i].setPosition((x + offset.x), (y + offset.y));
+                }
             }
         }
 
-        for (var k = 0; k < this.shapes.length; ++k) {
-            if(this.shapes[k]['width'] && this.shapes[k]['height']){
-                var width = this.shapes[k]['width'];
-                var height = this.shapes[k]['height'];
-                var angle = this.getRotation();
-                if (angle >= 0 && angle < 90) {
-                  this.shapes[k]['position'][0] = (width/2);
-                  this.shapes[k]['position'][1] = (-(height/2) / 45) * angle + (height/2);
-                }
-                if (angle >= 90 && angle < 180) {
-                  this.shapes[k]['position'][0] = (-(width/2) / 45) * angle + (width/2)*3;
-                  this.shapes[k]['position'][1] = -(height/2);
-                }
-                if (angle >= 180 && angle < 270) {
-                  this.shapes[k]['position'][0] = -(width/2);
-                  this.shapes[k]['position'][1] = ((height/2) / 45) * angle - (height/2)*5;
-                }
-                if (angle >= 270 && angle < 360) {
-                  this.shapes[k]['position'][0] = ((width/2) / 45) * angle - (width/2)*7;
-                  this.shapes[k]['position'][1] = (height/2);
-                }
+        // Reset the position of the shape
+        if(this.shapes[0]){
+            if(this.shapes[0].hasOwnProperty("position") && this.shapes[0].hasOwnProperty("width") && this.shapes[0].hasOwnProperty("height")){
+                var shapePos = this.shapes[0]['position'];
+                this.shapes[0]['position'] = [this.shapes[0]['width']/2, this.shapes[0]['height']/2];
             }
         }
+
     }
 
     /*    --------------------------------------------------- *\
@@ -238,8 +242,13 @@ class Elements extends p2.Body{
     
             Return: nil
     \*    --------------------------------------------------- */
-    assignDrawable(drawable:any){
+    assignDrawable(drawable: Render.Drawable){
         this.drawables.push(drawable);
+        this.setPosition(this.getPosition().x, this.getPosition().y);
+    }
+
+    setDrawable(drawable : Render.Drawable, index = 0){
+        this.drawables[index] = drawable;
         this.setPosition(this.getPosition().x, this.getPosition().y);
     }
 
@@ -482,6 +491,10 @@ class Elements extends p2.Body{
             Return: nil
     \*    --------------------------------------------------- */
     destroy(){
+        if(this.world){
+            this.world.removeBody(this);
+        }
+
         for (var i = _elements.length - 1; i >= 0; i--) {
             if(_elements[i] == this){
                 _elements.splice(i, 1);
@@ -489,6 +502,15 @@ class Elements extends p2.Body{
         }
 
         delete this;
+    }
+
+    setVelocity(x : number, y : number){
+        this.velocity[0] = x;
+        this.velocity[1] = y;
+    }
+
+    getVelocity(){
+        return {x : this.velocity[0], y : this.velocity[1]};
     }
 
 }

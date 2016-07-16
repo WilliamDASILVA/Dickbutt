@@ -31,6 +31,10 @@ module Update{
 		cameraToUpdate = camera;
 	}
 
+	export function setUseFPS(value : boolean){
+		useFPS = value;
+	}
+
 	/*	--------------------------------------------------- *\
 			[function] step()
 	
@@ -42,7 +46,7 @@ module Update{
 	function step(t){
         requestAnimationFrame(step);
         // update elements
-        for (var i = _elements.length - 1; i >= 0; i--) {
+        for (var i = 0; i < _elements.length; i++) {
             var pos = _elements[i].getPosition();
             _elements[i].setPosition(pos.x, pos.y);
             _elements[i].setRotation(_elements[i].getRotation());
@@ -55,8 +59,8 @@ module Update{
         }
 
         // call update functions
-        for (var i = functionsToCallWhenUpdate.length - 1; i >= 0; i--) {
-			functionsToCallWhenUpdate[i](t);
+        for (var k = 0; k < functionsToCallWhenUpdate.length; k++) {
+			functionsToCallWhenUpdate[k](t);
         }
         
         var dt = t !== undefined && lastTime !== undefined ? t / 1000 - lastTime : 0;

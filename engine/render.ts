@@ -613,10 +613,15 @@ module Render{
 					context.lineWidth = 4;
 					context.strokeStyle = "#FF0000";
 					var pos = position;
-					if(elementToDraw.getShape() == "circle"){
-						pos.x = pos.x - elementToDraw.getRadius();
-						pos.y = pos.y - elementToDraw.getRadius();
+					/*if(typeof elementToDraw.getShape() != "undefined"){
+						if(elementToDraw.getShape() == "circle"){
+							pos.x = pos.x - elementToDraw.getRadius();
+							pos.y = pos.y - elementToDraw.getRadius();
+						}
 					}
+					else{
+						console.log("RENDER FAILED", elementToDraw);
+					}*/
 					context.strokeRect(pos.x, pos.y, size.width, size.height);
 				}
 

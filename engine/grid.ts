@@ -238,8 +238,12 @@ module Grid{
         constructor(parentGrid : any, x : number, y : number){
             super();
 
+            this.setType("tile");
+            this.canCollideWith("player");
+
+            this.setMass(0);
+
             this.parentGrid = parentGrid;
-            this.eType = "tile";
             this.gridPos = { x: x, y: y };
 
             this.parentGrid.addTile(this);

@@ -16,7 +16,17 @@ var Global;
             Return: screenX, screenY
     \*    --------------------------------------------------- */
     function getScreenSize() {
-        return { width: window.innerWidth, height: window.innerHeight };
+        var size = {
+            height: null,
+            width: null
+        };
+        if (typeof document.body != "undefined") {
+            size = { width: document.body.offsetWidth, height: document.body.offsetHeight };
+        }
+        else {
+            size = { width: window.innerWidth, height: window.innerHeight };
+        }
+        return size;
     }
     Global.getScreenSize = getScreenSize;
     /*	--------------------------------------------------- *\
@@ -382,7 +392,14 @@ var Elements = (function (_super) {
         if (!isStatic) {
             _elements.push(this);
         }
+        this.centred = false;
     }
+    Elements.prototype.setCentred = function (value) {
+        this.centred = value;
+    };
+    Elements.prototype.isCentred = function () {
+        return this.centred;
+    };
     /*    --------------------------------------------------- *\
             [function] getDepth()
     
@@ -471,30 +488,20 @@ var Elements = (function (_super) {
         if (this.getAssignedDrawables() != 0) {
             for (var i = 0; i < this.getAssignedDrawables().length; ++i) {
                 var offset = this.getAssignedDrawables()[i].getOffset();
-                this.getAssignedDrawables()[i].setPosition(x + offset.x, y + offset.y);
+                var size = this.getAssignedDrawables()[i].getSize();
+                if (this.isCentred()) {
+                    this.getAssignedDrawables()[i].setPosition((x + offset.x) - size.width / 2, (y + offset.y) - size.height / 2);
+                }
+                else {
+                    this.getAssignedDrawables()[i].setPosition((x + offset.x), (y + offset.y));
+                }
             }
         }
-        for (var k = 0; k < this.shapes.length; ++k) {
-            if (this.shapes[k]['width'] && this.shapes[k]['height']) {
-                var width = this.shapes[k]['width'];
-                var height = this.shapes[k]['height'];
-                var angle = this.getRotation();
-                if (angle >= 0 && angle < 90) {
-                    this.shapes[k]['position'][0] = (width / 2);
-                    this.shapes[k]['position'][1] = (-(height / 2) / 45) * angle + (height / 2);
-                }
-                if (angle >= 90 && angle < 180) {
-                    this.shapes[k]['position'][0] = (-(width / 2) / 45) * angle + (width / 2) * 3;
-                    this.shapes[k]['position'][1] = -(height / 2);
-                }
-                if (angle >= 180 && angle < 270) {
-                    this.shapes[k]['position'][0] = -(width / 2);
-                    this.shapes[k]['position'][1] = ((height / 2) / 45) * angle - (height / 2) * 5;
-                }
-                if (angle >= 270 && angle < 360) {
-                    this.shapes[k]['position'][0] = ((width / 2) / 45) * angle - (width / 2) * 7;
-                    this.shapes[k]['position'][1] = (height / 2);
-                }
+        // Reset the position of the shape
+        if (this.shapes[0]) {
+            if (this.shapes[0].hasOwnProperty("position") && this.shapes[0].hasOwnProperty("width") && this.shapes[0].hasOwnProperty("height")) {
+                var shapePos = this.shapes[0]['position'];
+                this.shapes[0]['position'] = [this.shapes[0]['width'] / 2, this.shapes[0]['height'] / 2];
             }
         }
     };
@@ -543,6 +550,11 @@ var Elements = (function (_super) {
     \*    --------------------------------------------------- */
     Elements.prototype.assignDrawable = function (drawable) {
         this.drawables.push(drawable);
+        this.setPosition(this.getPosition().x, this.getPosition().y);
+    };
+    Elements.prototype.setDrawable = function (drawable, index) {
+        if (index === void 0) { index = 0; }
+        this.drawables[index] = drawable;
         this.setPosition(this.getPosition().x, this.getPosition().y);
     };
     /*    --------------------------------------------------- *\
@@ -766,12 +778,22 @@ var Elements = (function (_super) {
             Return: nil
     \*    --------------------------------------------------- */
     Elements.prototype.destroy = function () {
+        if (this.world) {
+            this.world.removeBody(this);
+        }
         for (var i = _elements.length - 1; i >= 0; i--) {
             if (_elements[i] == this) {
                 _elements.splice(i, 1);
             }
         }
         delete this;
+    };
+    Elements.prototype.setVelocity = function (x, y) {
+        this.velocity[0] = x;
+        this.velocity[1] = y;
+    };
+    Elements.prototype.getVelocity = function () {
+        return { x: this.velocity[0], y: this.velocity[1] };
     };
     return Elements;
 }(p2.Body));
@@ -1411,6 +1433,10 @@ var Update;
         cameraToUpdate = camera;
     }
     Update.camera = camera;
+    function setUseFPS(value) {
+        useFPS = value;
+    }
+    Update.setUseFPS = setUseFPS;
     /*	--------------------------------------------------- *\
             [function] step()
     
@@ -1422,7 +1448,7 @@ var Update;
     function step(t) {
         requestAnimationFrame(step);
         // update elements
-        for (var i = _elements.length - 1; i >= 0; i--) {
+        for (var i = 0; i < _elements.length; i++) {
             var pos = _elements[i].getPosition();
             _elements[i].setPosition(pos.x, pos.y);
             _elements[i].setRotation(_elements[i].getRotation());
@@ -1433,8 +1459,8 @@ var Update;
             cameraToUpdate.setPosition(lockOnPosition.x, lockOnPosition.y);
         }
         // call update functions
-        for (var i = functionsToCallWhenUpdate.length - 1; i >= 0; i--) {
-            functionsToCallWhenUpdate[i](t);
+        for (var k = 0; k < functionsToCallWhenUpdate.length; k++) {
+            functionsToCallWhenUpdate[k](t);
         }
         var dt = t !== undefined && lastTime !== undefined ? t / 1000 - lastTime : 0;
         if (useFPS) {
@@ -1999,10 +2025,15 @@ var Render;
                     context.lineWidth = 4;
                     context.strokeStyle = "#FF0000";
                     var pos = position;
-                    if (elementToDraw.getShape() == "circle") {
-                        pos.x = pos.x - elementToDraw.getRadius();
-                        pos.y = pos.y - elementToDraw.getRadius();
+                    /*if(typeof elementToDraw.getShape() != "undefined"){
+                        if(elementToDraw.getShape() == "circle"){
+                            pos.x = pos.x - elementToDraw.getRadius();
+                            pos.y = pos.y - elementToDraw.getRadius();
+                        }
                     }
+                    else{
+                        console.log("RENDER FAILED", elementToDraw);
+                    }*/
                     context.strokeRect(pos.x, pos.y, size.width, size.height);
                 }
                 context.restore();
@@ -2031,12 +2062,19 @@ var Render;
                 Return: nil
         \*    --------------------------------------------------- */
         function Layer() {
+            var _this = this;
             this.elements = [];
             this.canvasElement = document.createElement("canvas");
             this.context = this.canvasElement.getContext("2d");
-            this.canvasElement.width = window.innerWidth;
-            this.canvasElement.height = window.innerHeight;
+            var screenSize = Global.getScreenSize();
+            this.canvasElement.width = screenSize.width;
+            this.canvasElement.height = screenSize.height;
             document.body.appendChild(this.canvasElement);
+            window.addEventListener("resize", function () {
+                var screenSize = Global.getScreenSize();
+                _this.canvasElement.width = screenSize.width;
+                _this.canvasElement.height = screenSize.height;
+            });
             this.render();
             this.smooth = true;
             this.affectedByCamera = false;
@@ -3600,8 +3638,10 @@ var Grid;
         \*    --------------------------------------------------- */
         function Tile(parentGrid, x, y) {
             _super.call(this);
+            this.setType("tile");
+            this.canCollideWith("player");
+            this.setMass(0);
             this.parentGrid = parentGrid;
-            this.eType = "tile";
             this.gridPos = { x: x, y: y };
             this.parentGrid.addTile(this);
         }
@@ -3653,6 +3693,10 @@ var UI;
         return focus;
     }
     UI.isInputEnabled = isInputEnabled;
+    function setUsedCanvas(layout) {
+        interfaceCanvas = layout;
+    }
+    UI.setUsedCanvas = setUsedCanvas;
     /*    --------------------------------------------------- *\
             [function] getUsedCanvas()
     

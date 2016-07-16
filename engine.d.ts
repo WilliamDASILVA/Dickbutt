@@ -2,8 +2,8 @@
 /// <reference path="engine/tween.d.ts" />
 declare module Global {
     function getScreenSize(): {
-        width: number;
-        height: number;
+        height: any;
+        width: any;
     };
     function getDistanceBetween2Points(aX: any, aY: any, bX?: number, bY?: number): number;
     function getPositionFromScreen(screenX: any, screenY: any, cam: any): Point;
@@ -63,7 +63,10 @@ declare class Elements extends p2.Body {
     canCollide: string[];
     colGroup: number;
     isSensor: boolean;
+    private centred;
     constructor(mass?: number, isStatic?: boolean);
+    setCentred(value: boolean): void;
+    isCentred(): boolean;
     getDepth(): number;
     setDepth(depth: number): void;
     addShape(shape: any, offset?: any, angle?: any): void;
@@ -71,7 +74,8 @@ declare class Elements extends p2.Body {
     setRotation(angle: number): void;
     getRotation(): number;
     getPosition(): Point;
-    assignDrawable(drawable: any): void;
+    assignDrawable(drawable: Render.Drawable): void;
+    setDrawable(drawable: Render.Drawable, index?: number): void;
     getAssignedDrawables(): any;
     setType(eType: string): void;
     private addCollisionGroup();
@@ -87,6 +91,11 @@ declare class Elements extends p2.Body {
     canCollideWith(...parameters: string[]): void;
     updateCollisions(): void;
     destroy(): void;
+    setVelocity(x: number, y: number): void;
+    getVelocity(): {
+        x: number;
+        y: number;
+    };
 }
 declare class Scene {
     origin: Point;
@@ -162,6 +171,7 @@ declare module Input {
 declare module Update {
     function world(world: any): void;
     function camera(camera: Camera): void;
+    function setUseFPS(value: boolean): void;
     function on(functionToCall: any): void;
 }
 declare module Render {
@@ -418,6 +428,7 @@ declare module Grid {
 }
 declare module UI {
     function isInputEnabled(): boolean;
+    function setUsedCanvas(layout: any): void;
     function getUsedCanvas(): any;
 }
 declare module UI {

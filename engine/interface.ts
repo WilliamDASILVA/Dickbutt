@@ -23,6 +23,10 @@ module UI{
         return focus;
     }
 
+    export function setUsedCanvas(layout){
+        interfaceCanvas = layout;
+    }
+
     /*    --------------------------------------------------- *\
             [function] getUsedCanvas()
     
