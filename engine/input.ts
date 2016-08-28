@@ -535,23 +535,23 @@ module Input{
 	    				var axe = this.gamepads[i].axes[a];
 	    				if(this.states[i]['axes-' + a] == undefined){
 	    					if(this.rounded){
-	    						this.states[i]['axes-' + a] = axe.toFixed(this.roundedDecimal);
+	    						this.states[i]['axes-' + a] = parseInt(axe.toFixed(this.roundedDecimal));
 	    					}
 	    					else{
-	    						this.states[i]['axes-' + a] = axe;
+	    						this.states[i]['axes-' + a] = parseInt(axe);
 	    					}
 	    				}
 
-	    				if(this.states[i]['axes-' + a] != (this.rounded ? axe.toFixed(this.roundedDecimal) : axe)){
+	    				if(this.states[i]['axes-' + a] != parseInt((this.rounded ? axe.toFixed(this.roundedDecimal) : axe))){
 	    					// id : newValue : oldValue
 	    					if(this.rounded){
-		    					this.emit("joystick", a, axe.toFixed(this.roundedDecimal), this.states[i]['axes-' + a]);
-		    					this.states[i]['axes-' + a] = axe.toFixed(this.roundedDecimal);
+		    					this.emit("joystick", a, parseInt(axe.toFixed(this.roundedDecimal)), this.states[i]['axes-' + a]);
+		    					this.states[i]['axes-' + a] = parseInt(axe.toFixed(this.roundedDecimal));
 
 	    					}
 	    					else{
-		    					this.emit("joystick", a, axe, this.states[i]['axes-' + a]);
-		    					this.states[i]['axes-' + a] = axe;
+		    					this.emit("joystick", a, parseInt(axe), this.states[i]['axes-' + a]);
+		    					this.states[i]['axes-' + a] = parseInt(axe);
 	    					}
 	    				}
 	    			}
