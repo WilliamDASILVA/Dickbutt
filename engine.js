@@ -1417,6 +1417,8 @@ var Input;
             this.isActive = true;
             this.gamepads = [];
             this.states = [{}, {}, {}, {}];
+            this.rounded = false;
+            this.roundedDecimal = 10;
             var cache = this;
             window.addEventListener("gamepadconnected", function (e) {
                 // update gamepads list
@@ -1433,6 +1435,12 @@ var Input;
                 _this.checkChanges();
             });
         }
+        Gamepad.prototype.isRounded = function (value) {
+            this.rounded = value;
+        };
+        Gamepad.prototype.setRoundDecimal = function (value) {
+            this.roundedDecimal = value;
+        };
         Gamepad.prototype.getGamepads = function () {
             return this.gamepads;
         };
@@ -1484,12 +1492,23 @@ var Input;
                     for (var a = 0; a < this.gamepads[i].axes.length; ++a) {
                         var axe = this.gamepads[i].axes[a];
                         if (this.states[i]['axes-' + a] == undefined) {
-                            this.states[i]['axes-' + a] = axe;
+                            if (this.rounded) {
+                                this.states[i]['axes-' + a] = axe.toFixed(this.roundedDecimal);
+                            }
+                            else {
+                                this.states[i]['axes-' + a] = axe;
+                            }
                         }
-                        if (this.states[i]['axes-' + a] != axe) {
+                        if (this.states[i]['axes-' + a] != (this.rounded ? axe.toFixed(this.roundedDecimal) : axe)) {
                             // id : newValue : oldValue
-                            this.emit("joystick", a, axe, this.states[i]['axes-' + a]);
-                            this.states[i]['axes-' + a] = axe;
+                            if (this.rounded) {
+                                this.emit("joystick", a, axe.toFixed(this.roundedDecimal), this.states[i]['axes-' + a]);
+                                this.states[i]['axes-' + a] = axe.toFixed(this.roundedDecimal);
+                            }
+                            else {
+                                this.emit("joystick", a, axe, this.states[i]['axes-' + a]);
+                                this.states[i]['axes-' + a] = axe;
+                            }
                         }
                     }
                 }

@@ -171,7 +171,11 @@ declare module Input {
         private isActive;
         private gamepads;
         private states;
+        private rounded;
+        private roundedDecimal;
         constructor();
+        isRounded(value: boolean): void;
+        setRoundDecimal(value: number): void;
         getGamepads(): any;
         private getRealGamepads();
         private checkChanges();

@@ -431,6 +431,8 @@ module Input{
     	private isActive : boolean;
     	private gamepads : any;
     	private states   : any
+    	private rounded : boolean;
+    	private roundedDecimal : number;
 
     	/*	--------------------------------------------------- *\
     			[function] constructor()
@@ -445,6 +447,9 @@ module Input{
     		this.isActive = true;
     		this.gamepads = [];
     		this.states = [{}, {}, {}, {}];
+
+    		this.rounded = false;
+    		this.roundedDecimal = 10;
 
     		var cache = this;
     		window.addEventListener("gamepadconnected", (e) => {
@@ -463,6 +468,14 @@ module Input{
     		requestAnimationFrame(() => {
     			this.checkChanges();
     		});
+    	}
+
+    	public isRounded(value : boolean){
+    		this.rounded = value;
+    	}
+
+    	public setRoundDecimal(value : number){
+    		this.roundedDecimal = value;
     	}
 
     	public getGamepads(){
@@ -521,13 +534,25 @@ module Input{
 	    			for (var a = 0; a < this.gamepads[i].axes.length; ++a) {
 	    				var axe = this.gamepads[i].axes[a];
 	    				if(this.states[i]['axes-' + a] == undefined){
-	    					this.states[i]['axes-' + a] = axe;
+	    					if(this.rounded){
+	    						this.states[i]['axes-' + a] = axe.toFixed(this.roundedDecimal);
+	    					}
+	    					else{
+	    						this.states[i]['axes-' + a] = axe;
+	    					}
 	    				}
 
-	    				if(this.states[i]['axes-' + a] != axe){
+	    				if(this.states[i]['axes-' + a] != (this.rounded ? axe.toFixed(this.roundedDecimal) : axe)){
 	    					// id : newValue : oldValue
-	    					this.emit("joystick", a, axe, this.states[i]['axes-' + a]);
-	    					this.states[i]['axes-' + a] = axe;
+	    					if(this.rounded){
+		    					this.emit("joystick", a, axe.toFixed(this.roundedDecimal), this.states[i]['axes-' + a]);
+		    					this.states[i]['axes-' + a] = axe.toFixed(this.roundedDecimal);
+
+	    					}
+	    					else{
+		    					this.emit("joystick", a, axe, this.states[i]['axes-' + a]);
+		    					this.states[i]['axes-' + a] = axe;
+	    					}
 	    				}
 	    			}
 	    		}
