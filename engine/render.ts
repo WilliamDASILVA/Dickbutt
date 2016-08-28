@@ -193,15 +193,17 @@ module Render{
     		if(layer.affectedByCamera){
     			if(camera){
     				// Translate to the scale position
-					context.translate(camera.getDepthPosition().x, camera.getDepthPosition().y);
+					var ratio = camera.getDepth()/2;
+					context.translate(-window.innerWidth * ratio,-window.innerHeight * ratio);
+
     				// Scale the canvas
-					context.scale(camera.getDepth(), camera.getDepth());
+					context.scale(camera.getDepth() + 1, camera.getDepth() + 1);
 
 					// Rotate
-					context.translate(window.innerWidth/2, window.innerHeight/2);
+					/*context.translate(window.innerWidth/2, window.innerHeight/2);
 					context.rotate((camera.getRotation() * Math.PI) / 180);
 					context.translate(-window.innerWidth/2, -window.innerHeight/2);
-
+					*/
 					// Rotate the canvas
 					if(camera.getRotation() != 0){
 						var rotationPoint = camera.getRotationPoint();
@@ -241,7 +243,7 @@ module Render{
 										var renderPos = { x: pos.x, y: pos.y };
 										if (layer.affectedByCamera && camera) {
 											var cPos = camera.getPosition();
-											var cameraDepth = camera.getDepth();
+											var cameraDepth = camera.getDepth() +1;
 
 											// isFixed
 											if (!elementToDraw.isFixed()) {
@@ -301,7 +303,7 @@ module Render{
 
 											if(Render.getCamera()){
 												var cameraPosition = Render.getCamera().getPosition();
-												var cameraDepth = Render.getCamera().getDepth();
+												var cameraDepth = Render.getCamera().getDepth() +1;
 
 
 												// is drawable fixed
@@ -325,7 +327,7 @@ module Render{
 	    					// Gestion de la camera
 	    					if(layer.affectedByCamera && renderCamera){
 	    						var cPos = renderCamera.getPosition();
-								var cameraDepth = renderCamera.getDepth();
+								var cameraDepth = renderCamera.getDepth() +1;
 
 	    						// isFixed
 	    						if(!elementToDraw.isFixed()){
@@ -401,7 +403,7 @@ module Render{
 
 		// Check if the element is out of the screen
 		var camera = Render.getCamera();
-		var cameraDepth = camera.getDepth();
+		var cameraDepth = camera.getDepth()+1;
 		var depthPosition = camera.getDepthPosition();
 		var tempPosition = {x : depthPosition.x, y : depthPosition.y};
 
