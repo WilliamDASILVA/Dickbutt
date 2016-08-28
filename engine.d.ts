@@ -168,7 +168,13 @@ declare module Input {
         constructor();
     }
     class Gamepad extends Events {
+        private isActive;
+        private gamepads;
+        private states;
         constructor();
+        getGamepads(): any;
+        private getRealGamepads();
+        private checkChanges();
     }
 }
 declare module Update {
