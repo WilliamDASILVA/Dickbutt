@@ -1396,6 +1396,111 @@ var Input;
         return Scroll;
     }(Events));
     Input.Scroll = Scroll;
+    /*	--------------------------------------------------- *\
+            [class] Gamepad()
+    
+            * Gamepad event *
+    
+    \*	--------------------------------------------------- */
+    var Gamepad = (function (_super) {
+        __extends(Gamepad, _super);
+        /*	--------------------------------------------------- *\
+                [function] constructor()
+        
+                * Quand on crée un event Gamepad *
+        
+                Return: nil
+        \*	--------------------------------------------------- */
+        function Gamepad() {
+            var _this = this;
+            _super.call(this);
+            this.isActive = true;
+            this.gamepads = [];
+            this.states = [{}, {}, {}, {}];
+            var cache = this;
+            window.addEventListener("gamepadconnected", function (e) {
+                // update gamepads list
+                _this.gamepads = navigator.getGamepads();
+                cache.emit("connected", e);
+            });
+            window.addEventListener("gamepaddisconnected", function (e) {
+                // update gamepads list
+                _this.gamepads = navigator.getGamepads();
+                cache.emit("disconnected", e);
+            });
+            // Checking for changes in gamepad
+            requestAnimationFrame(function () {
+                _this.checkChanges();
+            });
+        }
+        Gamepad.prototype.getGamepads = function () {
+            return this.gamepads;
+        };
+        // Check if the gamepad is really connected using timestamp
+        Gamepad.prototype.getRealGamepads = function () {
+            var temp = [];
+            var gamepads = navigator.getGamepads();
+            for (var i = 0; i < gamepads.length; ++i) {
+                if (gamepads[i] != undefined) {
+                    if (gamepads[i].timestamp != 0) {
+                        temp.push(gamepads[i]);
+                    }
+                }
+            }
+            this.gamepads = temp;
+        };
+        Gamepad.prototype.checkChanges = function () {
+            var _this = this;
+            this.getRealGamepads();
+            // Check if the event should be triggered
+            var should = false;
+            for (var k = 0; k < this.gamepads.length; ++k) {
+                if (this.gamepads[k].connected) {
+                    should = true;
+                }
+            }
+            this.isActive = should;
+            // Do buttons & joystick detection
+            if (this.isActive && this.gamepads) {
+                for (var i = 0; i < this.gamepads.length; ++i) {
+                    // Button changes
+                    for (var b = 0; b < this.gamepads[i].buttons.length; ++b) {
+                        var button = this.gamepads[i].buttons[b];
+                        if (button.pressed) {
+                            if (this.states[i]["button-" + b] == false || this.states[i]["button-" + b] == undefined) {
+                                this.states[i]["button-" + b] = true;
+                                this.emit("buttonpressed", b);
+                            }
+                        }
+                        else {
+                            // Check if the button was pressed before
+                            if (this.states[i]["button-" + b]) {
+                                this.emit("buttonreleased", b);
+                                this.states[i]["button-" + b] = false;
+                            }
+                        }
+                    }
+                    // Axes changes
+                    for (var a = 0; a < this.gamepads[i].axes.length; ++a) {
+                        var axe = this.gamepads[i].axes[a];
+                        if (this.states[i]['axes-' + a] == undefined) {
+                            this.states[i]['axes-' + a] = axe;
+                        }
+                        if (this.states[i]['axes-' + a] != axe) {
+                            // id : newValue : oldValue
+                            this.emit("joystick", a, axe, this.states[i]['axes-' + a]);
+                            this.states[i]['axes-' + a] = axe;
+                        }
+                    }
+                }
+            }
+            requestAnimationFrame(function () {
+                _this.checkChanges();
+            });
+        };
+        return Gamepad;
+    }(Events));
+    Input.Gamepad = Gamepad;
     // Prevent context menu
     window.addEventListener("contextmenu", function (e) {
         e.preventDefault();
