@@ -420,6 +420,34 @@ module Input{
     	}
     }
 
+    /*	--------------------------------------------------- *\
+    		[class] Gamepad()
+    
+    		* Gamepad event *
+    
+    \*	--------------------------------------------------- */
+    export class Gamepad extends Events{
+    	/*	--------------------------------------------------- *\
+    			[function] constructor()
+    	
+    			* Quand on crée un event Gamepad *
+    	
+    			Return: nil
+    	\*	--------------------------------------------------- */
+    	constructor(){
+    		super();
+
+    		var cache = this;
+    		window.addEventListener("gamepadconnected", (e) => {
+    			cache.emit("connected", e);
+    		});
+
+    		window.addEventListener("gamepaddisconnected", (e) => {
+    			cache.emit("disconnected", e);
+    		});
+    	}
+    }
+
     // Prevent context menu
     window.addEventListener("contextmenu", (e) => {
         e.preventDefault();

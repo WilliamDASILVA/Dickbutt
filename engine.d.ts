@@ -167,6 +167,9 @@ declare module Input {
     class Scroll extends Events {
         constructor();
     }
+    class Gamepad extends Events {
+        constructor();
+    }
 }
 declare module Update {
     function world(world: any): void;
