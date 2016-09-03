@@ -1,6 +1,7 @@
 /// <reference path="engine/p2.d.ts" />
 /// <reference path="engine/tween.d.ts" />
 declare module Global {
+    function getVersion(): string;
     function getScreenSize(): {
         height: any;
         width: any;

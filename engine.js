@@ -8,6 +8,18 @@ var __extends = (this && this.__extends) || function (d, b) {
 \*	--------------------------------------------------- */
 var Global;
 (function (Global) {
+    var _VERSION = "1.0.0";
+    /*    --------------------------------------------------- *\
+            [function] getVersion()
+    
+            * Return the current Dickbutt's version *
+    
+            Return: version
+    \*    --------------------------------------------------- */
+    function getVersion() {
+        return _VERSION;
+    }
+    Global.getVersion = getVersion;
     /*    --------------------------------------------------- *\
             [function] getScreenSize()
     

@@ -3,6 +3,19 @@
 \*	--------------------------------------------------- */
 module Global{
 
+    const _VERSION = "1.0.0";
+
+    /*    --------------------------------------------------- *\
+            [function] getVersion()
+    
+            * Return the current Dickbutt's version *
+    
+            Return: version
+    \*    --------------------------------------------------- */
+    export function getVersion(){
+        return _VERSION;
+    }
+
     /*    --------------------------------------------------- *\
             [function] getScreenSize()
     
