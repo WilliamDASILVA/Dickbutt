@@ -846,7 +846,7 @@ var Camera = (function (_super) {
         _super.call(this);
         this.parentScene = scene;
         this.position = new Point(0, 0);
-        this.depth = 1;
+        this.depth = 0;
         this.depthPosition = new Point(0, 0);
         this.rotationPoint = new Point(0, 0);
         this.angle = 0;
@@ -1663,13 +1663,15 @@ var Render;
             if (layer.affectedByCamera) {
                 if (camera) {
                     // Translate to the scale position
-                    context.translate(camera.getDepthPosition().x, camera.getDepthPosition().y);
+                    var ratio = camera.getDepth() / 2;
+                    context.translate(-window.innerWidth * ratio, -window.innerHeight * ratio);
                     // Scale the canvas
-                    context.scale(camera.getDepth(), camera.getDepth());
+                    context.scale(camera.getDepth() + 1, camera.getDepth() + 1);
                     // Rotate
-                    context.translate(window.innerWidth / 2, window.innerHeight / 2);
+                    /*context.translate(window.innerWidth/2, window.innerHeight/2);
                     context.rotate((camera.getRotation() * Math.PI) / 180);
-                    context.translate(-window.innerWidth / 2, -window.innerHeight / 2);
+                    context.translate(-window.innerWidth/2, -window.innerHeight/2);
+                    */
                     // Rotate the canvas
                     if (camera.getRotation() != 0) {
                         var rotationPoint = camera.getRotationPoint();
@@ -1700,7 +1702,7 @@ var Render;
                                         var renderPos = { x: pos.x, y: pos.y };
                                         if (layer.affectedByCamera && camera) {
                                             var cPos = camera.getPosition();
-                                            var cameraDepth = camera.getDepth();
+                                            var cameraDepth = camera.getDepth() + 1;
                                             // isFixed
                                             if (!elementToDraw.isFixed()) {
                                                 renderPos.x = pos.x + ((canvas.width / 2) - cPos.x) / cameraDepth;
@@ -1750,7 +1752,7 @@ var Render;
                                             var size = assignedDrawables[k].getSize();
                                             if (Render.getCamera()) {
                                                 var cameraPosition = Render.getCamera().getPosition();
-                                                var cameraDepth = Render.getCamera().getDepth();
+                                                var cameraDepth = Render.getCamera().getDepth() + 1;
                                                 // is drawable fixed
                                                 if (!assignedDrawables[k].isFixed()) {
                                                     position.x = position.x + ((canvas.width / 2) - cameraPosition.x) / cameraDepth;
@@ -1770,7 +1772,7 @@ var Render;
                             // Gestion de la camera
                             if (layer.affectedByCamera && renderCamera) {
                                 var cPos = renderCamera.getPosition();
-                                var cameraDepth = renderCamera.getDepth();
+                                var cameraDepth = renderCamera.getDepth() + 1;
                                 // isFixed
                                 if (!elementToDraw.isFixed()) {
                                     elementPosition.x = elementPosition.x + ((canvas.width / 2) - cPos.x) / cameraDepth;
@@ -1836,7 +1838,7 @@ var Render;
         size.height = size.height || 1;
         // Check if the element is out of the screen
         var camera = Render.getCamera();
-        var cameraDepth = camera.getDepth();
+        var cameraDepth = camera.getDepth() + 1;
         var depthPosition = camera.getDepthPosition();
         var tempPosition = { x: depthPosition.x, y: depthPosition.y };
         var cam = getCamera();
