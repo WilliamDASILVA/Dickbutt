@@ -192,15 +192,17 @@ module Render{
     		// Camera management
     		if(layer.affectedByCamera){
     			if(camera){
-    				// Translate to the scale position
-					context.translate(camera.getDepthPosition().x, camera.getDepthPosition().y);
+    				var depth = camera.getDepth();
+
     				// Scale the canvas
+    				context.translate(screenSize.width/2, screenSize.height/2);
 					context.scale(camera.getDepth(), camera.getDepth());
+					context.translate((-screenSize.width/2),(-screenSize.height/2));
 
 					// Rotate
-					context.translate(window.innerWidth/2, window.innerHeight/2);
+					context.translate(screenSize.width/2, screenSize.height/2);
 					context.rotate((camera.getRotation() * Math.PI) / 180);
-					context.translate(-window.innerWidth/2, -window.innerHeight/2);
+					context.translate(-screenSize.width/2, -screenSize.height/2);
 
 					// Rotate the canvas
 					if(camera.getRotation() != 0){
@@ -241,7 +243,7 @@ module Render{
 										var renderPos = { x: pos.x, y: pos.y };
 										if (layer.affectedByCamera && camera) {
 											var cPos = camera.getPosition();
-											var cameraDepth = camera.getDepth();
+											var cameraDepth = camera.getDepth() +1;
 
 											// isFixed
 											if (!elementToDraw.isFixed()) {
@@ -301,7 +303,7 @@ module Render{
 
 											if(Render.getCamera()){
 												var cameraPosition = Render.getCamera().getPosition();
-												var cameraDepth = Render.getCamera().getDepth();
+												var cameraDepth = Render.getCamera().getDepth() +1;
 
 
 												// is drawable fixed
@@ -325,7 +327,7 @@ module Render{
 	    					// Gestion de la camera
 	    					if(layer.affectedByCamera && renderCamera){
 	    						var cPos = renderCamera.getPosition();
-								var cameraDepth = renderCamera.getDepth();
+								var cameraDepth = renderCamera.getDepth() +1;
 
 	    						// isFixed
 	    						if(!elementToDraw.isFixed()){
@@ -402,16 +404,7 @@ module Render{
 		// Check if the element is out of the screen
 		var camera = Render.getCamera();
 		var cameraDepth = camera.getDepth();
-		var depthPosition = camera.getDepthPosition();
-		var tempPosition = {x : depthPosition.x, y : depthPosition.y};
-
-		var cam = getCamera();
 		var of = { x: 0, y: 0 };
-		if(cam){
-			var depthPosition = cam.getDepthPosition();
-			of.x = depthPosition.x;
-			of.y = depthPosition.y;
-		}
 
 		if (position.x > -size.width - of.x  && position.x <= Global.getScreenSize().width + size.width + of.x && position.y > -size.height - of.y && position.y <= Global.getScreenSize().height + size.height + of.y) {
 			if(elementToDraw.isVisible(null)){

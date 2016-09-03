@@ -48,10 +48,12 @@ module Global{
             Return: position
     \*    --------------------------------------------------- */
     export function getPositionFromScreen(screenX, screenY, cam):Point{
-        var camPosition = cam.getOrigin();
-        var actual = { x: camPosition.x + screenX, y: camPosition.y + screenY };
-        var p = {x: actual.x, y: actual.y};
-        return new Point(p.x, p.y);
+        var position = cam.getOrigin();
+        console.log("Cam position", position);
+        var depth = cam.getDepth();
+
+        var actual = { x: (position.x + screenX) / depth, y: (position.y + screenY) / depth };
+        return new Point(actual.x, actual.y);
     }
 
     /*    --------------------------------------------------- *\
@@ -62,8 +64,11 @@ module Global{
             Return: position
     \*    --------------------------------------------------- */
     export function getPositionFromWorld(worldX, worldY, cam):Point{
-        var camPosition = cam.getOrigin();
-        return new Point(worldX - camPosition.x, worldY - camPosition.y);
+        var position = cam.getOrigin();
+        var depth = cam.getDepth();
+
+        var actual = {x : (worldX - position.x) * depth, y : (worldY - position.y) * depth};
+        return new Point(actual.x, actual.y);
     }
 
     /*    --------------------------------------------------- *\

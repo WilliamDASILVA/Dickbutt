@@ -27,7 +27,7 @@ class Camera extends Scene{
 		super();
 		this.parentScene = scene;
         this.position = new Point(0,0);
-		this.depth = 1;
+		this.depth = 0;
 		this.depthPosition = new Point(0,0);
 
 		this.rotationPoint = new Point(0,0);
