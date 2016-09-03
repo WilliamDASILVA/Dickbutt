@@ -192,18 +192,18 @@ module Render{
     		// Camera management
     		if(layer.affectedByCamera){
     			if(camera){
-    				// Translate to the scale position
-					var ratio = camera.getDepth()/2;
-					context.translate(-window.innerWidth * ratio,-window.innerHeight * ratio);
+    				var depth = camera.getDepth();
 
     				// Scale the canvas
-					context.scale(camera.getDepth() + 1, camera.getDepth() + 1);
+    				context.translate(screenSize.width/2, screenSize.height/2);
+					context.scale(camera.getDepth(), camera.getDepth());
+					context.translate((-screenSize.width/2),(-screenSize.height/2));
 
 					// Rotate
-					/*context.translate(window.innerWidth/2, window.innerHeight/2);
+					context.translate(screenSize.width/2, screenSize.height/2);
 					context.rotate((camera.getRotation() * Math.PI) / 180);
-					context.translate(-window.innerWidth/2, -window.innerHeight/2);
-					*/
+					context.translate(-screenSize.width/2, -screenSize.height/2);
+
 					// Rotate the canvas
 					if(camera.getRotation() != 0){
 						var rotationPoint = camera.getRotationPoint();

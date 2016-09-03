@@ -53,10 +53,11 @@ var Global;
             Return: position
     \*    --------------------------------------------------- */
     function getPositionFromScreen(screenX, screenY, cam) {
-        var camPosition = cam.getOrigin();
-        var actual = { x: camPosition.x + screenX, y: camPosition.y + screenY };
-        var p = { x: actual.x, y: actual.y };
-        return new Point(p.x, p.y);
+        var position = cam.getOrigin();
+        console.log("Cam position", position);
+        var depth = cam.getDepth();
+        var actual = { x: (position.x + screenX) / depth, y: (position.y + screenY) / depth };
+        return new Point(actual.x, actual.y);
     }
     Global.getPositionFromScreen = getPositionFromScreen;
     /*    --------------------------------------------------- *\
@@ -67,8 +68,10 @@ var Global;
             Return: position
     \*    --------------------------------------------------- */
     function getPositionFromWorld(worldX, worldY, cam) {
-        var camPosition = cam.getOrigin();
-        return new Point(worldX - camPosition.x, worldY - camPosition.y);
+        var position = cam.getOrigin();
+        var depth = cam.getDepth();
+        var actual = { x: (worldX - position.x) * depth, y: (worldY - position.y) * depth };
+        return new Point(actual.x, actual.y);
     }
     Global.getPositionFromWorld = getPositionFromWorld;
     /*    --------------------------------------------------- *\
@@ -1662,16 +1665,15 @@ var Render;
             // Camera management
             if (layer.affectedByCamera) {
                 if (camera) {
-                    // Translate to the scale position
-                    var ratio = camera.getDepth() / 2;
-                    context.translate(-window.innerWidth * ratio, -window.innerHeight * ratio);
+                    var depth = camera.getDepth();
                     // Scale the canvas
-                    context.scale(camera.getDepth() + 1, camera.getDepth() + 1);
+                    context.translate(screenSize.width / 2, screenSize.height / 2);
+                    context.scale(camera.getDepth(), camera.getDepth());
+                    context.translate((-screenSize.width / 2), (-screenSize.height / 2));
                     // Rotate
-                    /*context.translate(window.innerWidth/2, window.innerHeight/2);
+                    context.translate(screenSize.width / 2, screenSize.height / 2);
                     context.rotate((camera.getRotation() * Math.PI) / 180);
-                    context.translate(-window.innerWidth/2, -window.innerHeight/2);
-                    */
+                    context.translate(-screenSize.width / 2, -screenSize.height / 2);
                     // Rotate the canvas
                     if (camera.getRotation() != 0) {
                         var rotationPoint = camera.getRotationPoint();
