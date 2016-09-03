@@ -1840,16 +1840,8 @@ var Render;
         size.height = size.height || 1;
         // Check if the element is out of the screen
         var camera = Render.getCamera();
-        var cameraDepth = camera.getDepth() + 1;
-        var depthPosition = camera.getDepthPosition();
-        var tempPosition = { x: depthPosition.x, y: depthPosition.y };
-        var cam = getCamera();
+        var cameraDepth = camera.getDepth();
         var of = { x: 0, y: 0 };
-        if (cam) {
-            var depthPosition = cam.getDepthPosition();
-            of.x = depthPosition.x;
-            of.y = depthPosition.y;
-        }
         if (position.x > -size.width - of.x && position.x <= Global.getScreenSize().width + size.width + of.x && position.y > -size.height - of.y && position.y <= Global.getScreenSize().height + size.height + of.y) {
             if (elementToDraw.isVisible(null)) {
                 context.save();
