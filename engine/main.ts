@@ -25,6 +25,7 @@
 /// <reference path="render/draw/line.ts" />
 /// <reference path="render/draw/text.ts" />
 /// <reference path="render/draw/point.ts" />
+/// <reference path="render/download.ts" />
 
 /// <reference path="grid.ts" />
 /// <reference path="interface.ts" />

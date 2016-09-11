@@ -1637,43 +1637,6 @@ var Render;
     };
     var actualWorld = null;
     /*	--------------------------------------------------- *\
-            [function] setCamera()
-    
-            * Add une camera au Render *
-    
-            Return: nil
-    \*	--------------------------------------------------- */
-    function setCamera(cam) {
-        renderCamera = cam;
-    }
-    Render.setCamera = setCamera;
-    /*	--------------------------------------------------- *\
-            [function] getCamera()
-    
-            * Retourne l'element camera *
-    
-            Return: camera
-    \*	--------------------------------------------------- */
-    function getCamera() {
-        return renderCamera;
-    }
-    Render.getCamera = getCamera;
-    /*    --------------------------------------------------- *\
-            [function] add()
-    
-            * Add un element a download *
-    
-            Return: nil
-    \*    --------------------------------------------------- */
-    function add(elementToDownload) {
-        var elementToDL = {
-            element: elementToDownload,
-            downloaded: false
-        };
-        elementsToDownload.push(elementToDL);
-    }
-    Render.add = add;
-    /*	--------------------------------------------------- *\
             [function] setDebugMode(boolean)
     
             * Set le mode debug *
@@ -1708,57 +1671,6 @@ var Render;
         actualWorld = world;
     }
     Render.setWorld = setWorld;
-    /*    --------------------------------------------------- *\
-            [function] download()
-    
-            * Preload toute les images avant de commencer le jeu *
-    
-            Return: nil
-    \*    --------------------------------------------------- */
-    function download() {
-        var filesDownloaded = 0;
-        if (elementsToDownload.length == 0) {
-            for (var i = fToCallWhenDownloadReady.length - 1; i >= 0; i--) {
-                fToCallWhenDownloadReady[i]();
-            }
-        }
-        for (var i = elementsToDownload.length - 1; i >= 0; i--) {
-            var obj = new Image();
-            obj.src = image_prefix + elementsToDownload[i].element;
-            var elementName = elementsToDownload[i].element;
-            obj.addEventListener("load", function () {
-                for (var i = elementsToDownload.length - 1; i >= 0; i--) {
-                    if (elementsToDownload[i].element == elementName) {
-                        elementsToDownload[i].downloaded = true;
-                        // Vérifie si tous les download ne sont pas deja fini
-                        for (var k = elementsToDownload.length - 1; k >= 0; k--) {
-                            if (elementsToDownload[k].downloaded == true) {
-                                filesDownloaded += 1;
-                            }
-                        }
-                    }
-                }
-                // Tous les downlaod ont été effectués.
-                if (filesDownloaded == elementsToDownload.length) {
-                    for (var i = fToCallWhenDownloadReady.length - 1; i >= 0; i--) {
-                        fToCallWhenDownloadReady[i]();
-                    }
-                }
-            });
-        }
-    }
-    Render.download = download;
-    /*    --------------------------------------------------- *\
-            [function] ready()
-    
-            * Fires quand toute les ressources sont téléchargés *
-    
-            Return: nil
-    \*    --------------------------------------------------- */
-    function ready(functionToCall) {
-        fToCallWhenDownloadReady.push(functionToCall);
-    }
-    Render.ready = ready;
     /*	--------------------------------------------------- *\
             Render loop
     \*	--------------------------------------------------- */
@@ -2175,6 +2087,81 @@ var Render;
             return;
         }
     }
+})(Render || (Render = {}));
+/*    --------------------------------------------------- *\
+        Render : Download
+\*    --------------------------------------------------- */
+var Render;
+(function (Render) {
+    var vars = {
+        files: [],
+        imagePrefix: './'
+    };
+    /*    --------------------------------------------------- *\
+            [function] add(filePath, blocker)
+    
+            * Add the current file to be downloaded, if blocker is passed
+            then if the download fails for that file, it fails for everything *
+    
+            Return: nil
+    \*    --------------------------------------------------- */
+    function add(filePath, blocker) {
+        if (blocker === void 0) { blocker = false; }
+        var file = {
+            path: filePath,
+            downloaded: false,
+            blocker: blocker
+        };
+        vars.files.push(file);
+    }
+    Render.add = add;
+    /*    --------------------------------------------------- *\
+            [function] download()
+    
+            * Download all the files that has been added *
+    
+            Return: promise
+    \*    --------------------------------------------------- */
+    function download() {
+        var downloaded = 0;
+        return new window['Promise'](function (resolve, reject) {
+            if (vars.files.length == 0) {
+                resolve(downloaded);
+            }
+            var _loop_1 = function(file) {
+                obj = new Image();
+                obj.src = vars.imagePrefix + file.path;
+                path = file.path;
+                obj.addEventListener("error", function (e) {
+                    if (file.blocker) {
+                        reject(e);
+                    }
+                    else {
+                        downloaded++;
+                    }
+                });
+                obj.addEventListener("load", function () {
+                    for (var _i = 0, _a = vars.files; _i < _a.length; _i++) {
+                        var file_1 = _a[_i];
+                        if (file_1.path == path) {
+                            file_1.downloaded = true;
+                            downloaded++;
+                        }
+                    }
+                    // All the downloads are done
+                    if (downloaded == vars.files.length) {
+                        resolve(downloaded);
+                    }
+                });
+            };
+            var obj, path;
+            for (var _i = 0, _a = vars.files; _i < _a.length; _i++) {
+                var file = _a[_i];
+                _loop_1(file);
+            }
+        });
+    }
+    Render.download = download;
 })(Render || (Render = {}));
 var Render;
 (function (Render) {
@@ -4966,6 +4953,7 @@ var Fonts;
 /// <reference path="render/draw/line.ts" />
 /// <reference path="render/draw/text.ts" />
 /// <reference path="render/draw/point.ts" />
+/// <reference path="render/download.ts" />
 /// <reference path="grid.ts" />
 /// <reference path="interface.ts" />
 /// <reference path="ui/gui.ts" />

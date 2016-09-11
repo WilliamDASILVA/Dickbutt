@@ -13,43 +13,6 @@ module Render{
     };
     var actualWorld = null;
 
-	/*	--------------------------------------------------- *\
-			[function] setCamera()
-	
-			* Add une camera au Render *
-	
-			Return: nil
-	\*	--------------------------------------------------- */
-	export function setCamera(cam:any){
-		renderCamera = cam;
-	}
-
-	/*	--------------------------------------------------- *\
-			[function] getCamera()
-	
-			* Retourne l'element camera *
-	
-			Return: camera
-	\*	--------------------------------------------------- */
-	export function getCamera(){
-		return renderCamera;
-	}
-
-    /*    --------------------------------------------------- *\
-            [function] add()
-    
-            * Add un element a download *
-    
-            Return: nil
-    \*    --------------------------------------------------- */
-    export function add(elementToDownload:any){
-        var elementToDL = {
-            element: elementToDownload,
-            downloaded: false
-        };
-
-        elementsToDownload.push(elementToDL);
-    }
 
     /*	--------------------------------------------------- *\
     		[function] setDebugMode(boolean)
@@ -85,62 +48,7 @@ module Render{
 		actualWorld = world;
     }
 
-    /*    --------------------------------------------------- *\
-            [function] download()
-    
-            * Preload toute les images avant de commencer le jeu *
-    
-            Return: nil
-    \*    --------------------------------------------------- */
-    export function download(){
-        var filesDownloaded = 0;
-        if(elementsToDownload.length == 0){
-			for (var i = fToCallWhenDownloadReady.length - 1; i >= 0; i--) {
-                fToCallWhenDownloadReady[i]();
-            }
-        }
-        for (var i = elementsToDownload.length - 1; i >= 0; i--) {
-            var obj = new Image();
-            obj.src = image_prefix + elementsToDownload[i].element;
 
-            var elementName = elementsToDownload[i].element;
-            obj.addEventListener("load", function() {
-                for (var i = elementsToDownload.length - 1; i >= 0; i--) {
-                    if(elementsToDownload[i].element == elementName){
-                        elementsToDownload[i].downloaded = true;
-
-                        // Vérifie si tous les download ne sont pas deja fini
-                        for (var k = elementsToDownload.length - 1; k >= 0; k--) {
-                            if(elementsToDownload[k].downloaded == true){
-                                filesDownloaded += 1;
-                            }
-                        }
-
-                    }
-                }
-                
-		        // Tous les downlaod ont été effectués.
-		        if(filesDownloaded == elementsToDownload.length){
-		            for (var i = fToCallWhenDownloadReady.length - 1; i >= 0; i--) {
-		                fToCallWhenDownloadReady[i]();
-		            }
-		        }
-            });
-        }
-
-    }
-
-
-    /*    --------------------------------------------------- *\
-            [function] ready()
-    
-            * Fires quand toute les ressources sont téléchargés *
-    
-            Return: nil
-    \*    --------------------------------------------------- */
-    export function ready(functionToCall:any){
-        fToCallWhenDownloadReady.push(functionToCall);
-    }
 
 	/*	--------------------------------------------------- *\
 			Render loop

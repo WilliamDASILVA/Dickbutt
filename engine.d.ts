@@ -200,6 +200,11 @@ declare module Render {
     function updateRender(layer: any): void;
 }
 declare module Render {
+declare module Render {
+    function add(filePath: string, blocker?: boolean): void;
+    function download(): any;
+}
+declare module Render {
     class Layer {
         canvasElement: any;
         context: any;
