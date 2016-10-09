@@ -13,43 +13,6 @@ module Render{
     };
     var actualWorld = null;
 
-
-    /*	--------------------------------------------------- *\
-    		[function] setDebugMode(boolean)
-    
-    		* Set le mode debug *
-    
-    		Return: nil
-    \*	--------------------------------------------------- */
-    export function setDebugMode(value : boolean, type = "aabb"){
-		debugMode.active = value;
-		debugMode.type = type;
-    }
-
-    /*	--------------------------------------------------- *\
-    		[function] getWorld()
-    
-    		* Retourne le world *
-    
-    		Return: world
-    \*	--------------------------------------------------- */
-    export function getWorld(){
-		return actualWorld;
-    }
-
-    /*	--------------------------------------------------- *\
-    		[function] setWorld(world)
-    
-    		* Set le world *
-    
-    		Return: nil
-    \*	--------------------------------------------------- */
-    export function setWorld(world : any){
-		actualWorld = world;
-    }
-
-
-
 	/*	--------------------------------------------------- *\
 			Render loop
 	\*	--------------------------------------------------- */
@@ -62,11 +25,10 @@ module Render{
     
     		Return: nil
     \*	--------------------------------------------------- */
-    export function updateRender(layer){
+    /*export function updateRender(layer){
         
 		var canvas = layer.getCanvas();
 		var context = layer.getContext();
-		var elements = layer.getElements();
 
         if(context && canvas){
 			var screenSize = Global.getScreenSize();
@@ -80,49 +42,6 @@ module Render{
 				context.mozImageSmoothingEnabled = false;
 				context.imageSmoothingEnabled = false;
 			}
-
-    		// Sort elements by depth
-    		elements.sort(function(a, b){
-				a.depth = a.depth || 0;
-				b.depth = b.depth || 0;
-
-				if (a.depth < b.depth) {
-					return -1;
-				}
-				else if (a.depth > b.depth) {
-					return 1;
-				}
-				else{
-					return 0;
-    			}
-    		});
-
-    		// Camera management
-    		if(layer.affectedByCamera){
-    			if(camera){
-    				var depth = camera.getDepth();
-
-    				// Scale the canvas
-    				context.translate(screenSize.width/2, screenSize.height/2);
-					context.scale(camera.getDepth(), camera.getDepth());
-					context.translate((-screenSize.width/2),(-screenSize.height/2));
-
-					// Rotate
-					context.translate(screenSize.width/2, screenSize.height/2);
-					context.rotate((camera.getRotation() * Math.PI) / 180);
-					context.translate(-screenSize.width/2, -screenSize.height/2);
-
-					// Rotate the canvas
-					if(camera.getRotation() != 0){
-						var rotationPoint = camera.getRotationPoint();
-						context.translate(rotationPoint.x, rotationPoint.y);
-						context.rotate(camera.getRotation());
-						context.translate(-rotationPoint.x, -rotationPoint.y);
-					}
-
-    			}
-    		}
-
 
     		// Draw every elements			
     		if(elements){
@@ -522,7 +441,7 @@ module Render{
 					}
 					else{
 						console.log("RENDER FAILED", elementToDraw);
-					}*/
+					}
 					context.strokeRect(pos.x, pos.y, size.width, size.height);
 				}
 
@@ -533,6 +452,6 @@ module Render{
 			return;
 		}
 	}
-
+	*/
 
 }

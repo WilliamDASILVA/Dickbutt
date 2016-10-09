@@ -1,3 +1,5 @@
+/// <reference path="pointDraw.ts" />
+
 module Render{
 	export module Draw{
 		/*	--------------------------------------------------- *\

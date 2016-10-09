@@ -1,3 +1,5 @@
+/// <reference path="polygonDraw.ts" />
+
 module Render{
 	export module Draw{
 		/*	--------------------------------------------------- *\

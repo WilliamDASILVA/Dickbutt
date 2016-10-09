@@ -1,141 +1,102 @@
+/*    --------------------------------------------------- *\
+		Render : Layer
+\*    --------------------------------------------------- */
 module Render{
-    var layers = [];
 
-    /*    --------------------------------------------------- *\
-            [class] Layer()
-    
-            * Crée un layer *
-    
-    \*    --------------------------------------------------- */
-    export class Layer{
-        
-        canvasElement: any;
-        context: any;
-        elements: any;
-        smooth: boolean;
-        affectedByCamera: boolean;
+	/*    --------------------------------------------------- *\
+	        [function] orderElements(elements)
+	
+	        * Order elements by depth *
+	
+	        Return: elements
+	\*    --------------------------------------------------- */
+	function orderElements(elements){
+		return elements.sort((a, b) => {
+			a.depth = a.depth || 0;
+			b.depth = b.depth || 0;
 
-        /*    --------------------------------------------------- *\
-                [function] constructor()
-        
-                * Quand on crée un layer *
-        
-                Return: nil
-        \*    --------------------------------------------------- */
-        constructor(){
-            this.elements = [];
+			if (a.depth < b.depth) {
+				return -1;
+			}
+			else if (a.depth > b.depth) {
+				return 1;
+			}
+			else{
+				return 0;
+			}
+		});
+	}
 
-            this.canvasElement = document.createElement("canvas");
-            this.context = this.canvasElement.getContext("2d");
+	/*    --------------------------------------------------- *\
+	        [function] cameraTransformation(context)
+	
+	        * Do all the camera transformations *
+	
+	        Return: nil
+	\*    --------------------------------------------------- */
+	function cameraTransformation(context){
+		let camera = Render.getCamera();
+		let screen = Global.getScreenSize();
 
-            var screenSize = Global.getScreenSize();
+		// Scale
+		context.translate(screen.width/2, screen.height/2);
+		context.scale(camera.getDepth(), camera.getDepth());
+		context.translate((-screen.width/2),(-screen.height/2));
 
-            this.canvasElement.width = screenSize.width;
-            this.canvasElement.height = screenSize.height;
-            document.body.appendChild(this.canvasElement);
+		// Rotate
+		context.translate(screen.width/2, screen.height/2);
+		context.rotate((camera.getRotation() * Math.PI) / 180);
+		context.translate(-screen.width/2, -screen.height/2);
+
+		// Rotate the canvas
+		if(camera.getRotation() != 0){
+			let rotationPoint = camera.getRotationPoint();
+			context.translate(rotationPoint.x, rotationPoint.y);
+			context.rotate(camera.getRotation());
+			context.translate(-rotationPoint.x, -rotationPoint.y);
+		}
+	}
+
+	/*    --------------------------------------------------- *\
+	        [function] update(layer)
+	
+	        * Dispatch render functions *
+	
+	        Return: nil
+	\*    --------------------------------------------------- */
+	export function update(layer : Render.Layer){
+
+		let canvas = layer.getCanvas();
+		let context = layer.getContext();
+		let elements = layer.getElements();
+		elements = orderElements(elements);
+
+		let screen = Global.getScreenSize();
+		let camera = Render.getCamera();
+
+		if(context && canvas){
+			context.clearRect(0,0, screen.width, screen.height);
+			context.save();
+
+			// Canvas smooth
+			context.mozImageSmoothingEnabled = layer.isSmooth();
+			context.msImageSmoothingEnabled = layer.isSmooth();
+			context.imageSmoothingEnabled = layer.isSmooth();
 
 
-            window.addEventListener("resize", () => {
-                var screenSize = Global.getScreenSize();
-                this.canvasElement.width = screenSize.width;
-                this.canvasElement.height = screenSize.height;
-            });
+			// Camera transformations
+			if(layer.affectedByCamera){
+				cameraTransformation(context);
+			}
 
-            this.render();
 
-            this.smooth = true;
-            this.affectedByCamera = false;
+			// Dispatch each elements depending on the type
+			for(let element of elements){
+				Render.DrawableDraw.dispatch(element, context);
+			}
 
-            layers.push(this);
-        }
+			context.restore();
+		}
+	}
 
-        render(){
-            Render.updateRender(this);
-            window.requestAnimationFrame(() => {
-                this.render();
-            });
-        }
-
-        /*    --------------------------------------------------- *\
-                [function] set()
-        
-                * Set un element dans le layout *
-        
-                Return: nil
-        \*    --------------------------------------------------- */
-        set(element : any){
-            this.elements.push(element);
-        }
-
-        /*    --------------------------------------------------- *\
-                [function] del()
-        
-                * Delete un element du layout *
-        
-                Return: nil
-        \*    --------------------------------------------------- */
-        del(element : any){
-            for (var i = this.elements.length - 1; i >= 0; i--) {
-                if(this.elements[i] == element){
-                    this.elements.splice(i, 1);
-                    delete this.elements[i];
-                }
-            }
-        }
-
-        /*    --------------------------------------------------- *\
-                [function] getContext()
-        
-                * Retourne le context du layer *
-        
-                Return: context
-        \*    --------------------------------------------------- */
-        getContext(){
-            return this.context;
-        }
-
-        /*    --------------------------------------------------- *\
-                [function] getCanvas()
-        
-                * Retourne le canvas du layer *
-        
-                Return: canvas
-        \*    --------------------------------------------------- */
-        getCanvas(){
-            return this.canvasElement;
-        }
-
-        /*    --------------------------------------------------- *\
-                [function] getElements()
-        
-                * Retourne la liste de tous les elementsn *
-        
-                Return: elements
-        \*    --------------------------------------------------- */
-        getElements(){
-            return this.elements;
-        }
-
-        /*    --------------------------------------------------- *\
-                [function] setSmooth(value)
-        
-                * Set toute le canvas en smooth ou pixelated *
-        
-                Return: nil
-        \*    --------------------------------------------------- */
-        setSmooth(value : boolean){
-            this.smooth = value;
-        }
-
-        /*    --------------------------------------------------- *\
-                [function] isSmooth()
-        
-                * Retourne si le canvas est smooth ou pixelated *
-        
-                Return: true, false
-        \*    --------------------------------------------------- */
-        isSmooth(){
-            return this.smooth;
-        }
-    }
 }
