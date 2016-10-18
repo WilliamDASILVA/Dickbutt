@@ -1654,7 +1654,8 @@ var Render;
     };
     var vars = {
         camera: null,
-        world: null
+        world: null,
+        elementsOnScreen: 0
     };
     /*    --------------------------------------------------- *\
             [function] setCamera(camera)
@@ -2106,22 +2107,9 @@ var Render;
         DrawableDraw.render = render;
         function dispatch(element, context) {
             if (element) {
-                context.save();
                 var position = element.getPosition();
                 var size = element.getSize();
                 var screen_1 = Global.getScreenSize();
-                // element opacity
-                context.globalAlpha = element.getOpacity();
-                // smooth
-                if (!element.isSmooth()) {
-                    context.mozImageSmoothingEnabled = false;
-                    context.imageSmoothingEnabled = false;
-                }
-                // flipped
-                if (element.isFlipped(null)) {
-                    context.scale(-1, 1);
-                    position.x = -position.x - size.width;
-                }
                 // Apply element's position change made by the camera
                 var tempPos = { x: position.x, y: position.y };
                 if (!element.isFixed()) {
@@ -2129,35 +2117,53 @@ var Render;
                     tempPos.x = position.x + ((screen_1.width / 2) - cameraPosition.x);
                     tempPos.y = position.y + ((screen_1.height / 2) - cameraPosition.y);
                 }
-                // rotation
-                var rotationPoint = element.getRotationPoint();
-                if (element.fixedToCenter) {
-                    rotationPoint.x = tempPos.x + (size.width / 2);
-                    rotationPoint.y = tempPos.y + (size.height / 2);
+                // Check for boundaries
+                //console.log(tempPos, size, screen);
+                if (tempPos.x >= -size.width && tempPos.x <= screen_1.width
+                    && tempPos.y >= -size.height && tempPos.y <= screen_1.height) {
+                    context.save();
+                    // flipped
+                    if (element.isFlipped(null)) {
+                        context.scale(-1, 1);
+                        position.x = -position.x - size.width;
+                    }
+                    // element opacity
+                    context.globalAlpha = element.getOpacity();
+                    // smooth
+                    if (!element.isSmooth()) {
+                        context.mozImageSmoothingEnabled = false;
+                        context.imageSmoothingEnabled = false;
+                    }
+                    // rotation
+                    var rotationPoint = element.getRotationPoint();
+                    if (element.fixedToCenter) {
+                        rotationPoint.x = tempPos.x + (size.width / 2);
+                        rotationPoint.y = tempPos.y + (size.height / 2);
+                    }
+                    if (element.getRotation() != 0) {
+                        context.translate(rotationPoint.x, rotationPoint.y);
+                        context.rotate(element.getRotation() * (Math.PI / 180));
+                        context.translate(-rotationPoint.x, -rotationPoint.y);
+                    }
+                    // Do calculations for AABB in screen
+                    switch (element.getType()) {
+                        case "draw":
+                            Render.DrawDraw.dispatch(element, context, tempPos, size);
+                            break;
+                        case "drawable":
+                            if (element.isSprite()) {
+                                Render.SpriteDraw.render(element, context, tempPos, size);
+                            }
+                            else {
+                                Render.DrawableDraw.render(element, context, tempPos, size);
+                            }
+                            break;
+                        default:
+                            Render.ElementDraw.dispatch(element, context, tempPos, size);
+                            break;
+                    }
+                    context.restore();
                 }
-                if (element.getRotation() != 0) {
-                    context.translate(rotationPoint.x, rotationPoint.y);
-                    context.rotate(element.getRotation() * (Math.PI / 180));
-                    context.translate(-rotationPoint.x, -rotationPoint.y);
-                }
-                // Do calculations for AABB in screen
-                switch (element.getType()) {
-                    case "draw":
-                        Render.DrawDraw.dispatch(element, context, tempPos, size);
-                        break;
-                    case "drawable":
-                        if (element.isSprite()) {
-                            Render.SpriteDraw.render(element, context, tempPos, size);
-                        }
-                        else {
-                            Render.DrawableDraw.render(element, context, tempPos, size);
-                        }
-                        break;
-                    default:
-                        Render.ElementDraw.dispatch(element, context, tempPos, size);
-                        break;
-                }
-                context.restore();
             }
         }
         DrawableDraw.dispatch = dispatch;
@@ -3059,7 +3065,7 @@ var Render;
             function render(element, context, position, size) {
                 var radius = element.getRadius();
                 context.beginPath();
-                context.arc(position.x, position.y, radius, 0, 2 * Math.PI, false);
+                context.arc(position.x + radius, position.y + radius, radius, 0, 2 * Math.PI, false);
                 context.closePath();
             }
             CircleDraw.render = render;

@@ -12,7 +12,8 @@ module Render{
 
 	var vars = {
 		camera : null,
-		world : null
+		world : null,
+		elementsOnScreen : 0
 	};
 
 

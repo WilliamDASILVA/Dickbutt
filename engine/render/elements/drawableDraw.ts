@@ -26,27 +26,9 @@ module Render{
 
 		export function dispatch(element, context){
 			if(element){
-				context.save();
-
 				let position = element.getPosition();
 				let size = element.getSize();
 				let screen = Global.getScreenSize();
-
-				// element opacity
-				context.globalAlpha = element.getOpacity();
-
-				// smooth
-				if(!element.isSmooth()){
-					context.mozImageSmoothingEnabled = false;
-					context.imageSmoothingEnabled = false;
-				}
-
-				// flipped
-				if (element.isFlipped(null)) {
-					context.scale(-1, 1);
-
-	                position.x = -position.x - size.width;
-				}
 
 				// Apply element's position change made by the camera
 				let tempPos = { x: position.x, y: position.y };
@@ -56,39 +38,61 @@ module Render{
 					tempPos.y = position.y + ((screen.height / 2) - cameraPosition.y);
 				}
 
-				// rotation
-	            let rotationPoint = element.getRotationPoint();
-	            if (element.fixedToCenter) {
-	                rotationPoint.x = tempPos.x + (size.width / 2);
-	                rotationPoint.y = tempPos.y + (size.height / 2);
-	            }
+				// Check for boundaries
+				//console.log(tempPos, size, screen);
+				if(tempPos.x >= -size.width && tempPos.x <= screen.width
+				&& tempPos.y >= -size.height && tempPos.y <= screen.height){
+					context.save();
 
-				if (element.getRotation() != 0) {
-					context.translate(rotationPoint.x, rotationPoint.y);
-					context.rotate(element.getRotation() * (Math.PI / 180));
-					context.translate(-rotationPoint.x, -rotationPoint.y);
+					// flipped
+					if (element.isFlipped(null)) {
+						context.scale(-1, 1);
+		                position.x = -position.x - size.width;
+					}
+
+					// element opacity
+					context.globalAlpha = element.getOpacity();
+
+					// smooth
+					if(!element.isSmooth()){
+						context.mozImageSmoothingEnabled = false;
+						context.imageSmoothingEnabled = false;
+					}
+					// rotation
+		            let rotationPoint = element.getRotationPoint();
+		            if (element.fixedToCenter) {
+		                rotationPoint.x = tempPos.x + (size.width / 2);
+		                rotationPoint.y = tempPos.y + (size.height / 2);
+		            }
+
+					if (element.getRotation() != 0) {
+						context.translate(rotationPoint.x, rotationPoint.y);
+						context.rotate(element.getRotation() * (Math.PI / 180));
+						context.translate(-rotationPoint.x, -rotationPoint.y);
+					}
+
+
+					// Do calculations for AABB in screen
+					switch(element.getType()){
+						case "draw":
+							Render.DrawDraw.dispatch(element, context, tempPos, size);
+							break;
+						case "drawable":
+							if(element.isSprite()){
+								Render.SpriteDraw.render(element, context, tempPos, size);
+							}
+							else{
+								Render.DrawableDraw.render(element, context, tempPos, size);
+							}
+							break;
+						default:
+							Render.ElementDraw.dispatch(element, context, tempPos, size);
+							break;
+					}
+
+					context.restore();
 				}
 
-
-				// Do calculations for AABB in screen
-				switch(element.getType()){
-					case "draw":
-						Render.DrawDraw.dispatch(element, context, tempPos, size);
-						break;
-					case "drawable":
-						if(element.isSprite()){
-							Render.SpriteDraw.render(element, context, tempPos, size);
-						}
-						else{
-							Render.DrawableDraw.render(element, context, tempPos, size);
-						}
-						break;
-					default:
-						Render.ElementDraw.dispatch(element, context, tempPos, size);
-						break;
-				}
-
-				context.restore();
 			}
 		}
 
