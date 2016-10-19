@@ -15,6 +15,7 @@
   "homepage": "https://bitbucket.org/willia_am/dickbutt-engine#readme",
   "dependencies": {
     "gulp": "^3.9.1",
+    "gulp-rename": "^1.2.2",
     "gulp-typescript": "^3.0.2",
     "gulp-uglify": "^2.0.0",
     "typescript": "^2.0.3"
