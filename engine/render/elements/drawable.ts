@@ -1,4 +1,7 @@
+/// <reference path="drawableDraw.ts" />
+
 module Render{
+
 	/*	--------------------------------------------------- *\
 			[class] Drawable()
 	

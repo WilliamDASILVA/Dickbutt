@@ -1,3 +1,5 @@
+/// <reference path="textDraw.ts" />
+
 module Render{
 	export module Draw{
 		/*	--------------------------------------------------- *\

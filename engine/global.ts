@@ -12,7 +12,7 @@ module Global{
     
             Return: version
     \*    --------------------------------------------------- */
-    export function getVersion(){
+    export function getVersion():string{
         return _VERSION;
     }
 
@@ -62,7 +62,6 @@ module Global{
     \*    --------------------------------------------------- */
     export function getPositionFromScreen(screenX, screenY, cam):Point{
         var position = cam.getOrigin();
-        console.log("Cam position", position);
         var depth = cam.getDepth();
 
         var actual = { x: (position.x + screenX) / depth, y: (position.y + screenY) / depth };
@@ -135,7 +134,7 @@ module Global{
     
             Return: true, false
     \*    --------------------------------------------------- */
-    export function isAndroid(){
+    export function isAndroid():boolean{
         // Using Cordova element instead
         if(window.hasOwnProperty("cordova")){
             if(window['cordova'].platformId == "android"){

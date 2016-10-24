@@ -1,4 +1,7 @@
+/// <reference path="drawDraw.ts" />
+
 module Render{
+
 	export module Draw{
 		/*	--------------------------------------------------- *\
 				[class] Draw()

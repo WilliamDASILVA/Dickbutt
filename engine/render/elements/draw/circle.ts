@@ -1,56 +1,59 @@
+/// <reference path="circleDraw.ts" />
+
 module Render{
 	export module Draw{
+
 		/*	--------------------------------------------------- *\
-				[class] Line()
+				[class] Circle()
 		
-				* Dessiner une ligne *
+				* Dessiner un cercle *
 		
 		\*	--------------------------------------------------- */
-		export class Line extends Draw{
+		export class Circle extends Draw{
 
-			target: any;
-			
+			radius: number;
+
 			/*	--------------------------------------------------- *\
-					[function] constructor([optional : position.x, position.y, target.x, target.y])
+					[function] constructor([optional : position.x, position.y, radius])
 			
-					* Quand on crée une ligne *
+					* Quand on crée un cercle *
 			
 					Return: nil
 			\*	--------------------------------------------------- */
-			constructor(...parameters : any[]){
+			constructor(...parameters: any[]){
 				super();
-
-				this.target = { x: null, y: null };
-				this.shape = "line";
+				this.shape = "circle";
 
 				this.position.x = parameters[0] || this.position.x;
 				this.position.y = parameters[1] || this.position.y;
-				this.target.x = parameters[2] || this.target.x;
-				this.target.y = parameters[3] || this.target.y;
-			}
+				this.radius = parameters[2] || this.radius;
 
-			/*	--------------------------------------------------- *\
-					[function] setTarget(x, y)
+				this.setSize(this.getRadius() * 2, this.getRadius() * 2);
+				
+			}
 			
-					* Set la fin de la ligne *
+			/*	--------------------------------------------------- *\
+					[function] setRadius(radius)
+			
+					* Set le radius du cercle *
 			
 					Return: nil
 			\*	--------------------------------------------------- */
-			setTarget(x : number, y : number){
-				this.target = { x: x, y: y };
+			setRadius(radius:number){
+				this.radius = radius;
+				this.setSize(radius * 2, radius * 2);
 			}
 
 			/*	--------------------------------------------------- *\
-					[function] getTarget()
+					[function] getRadius()
 			
-					* Retourne la position de la fin de la ligne *
+					* Retourne le radius du cercle *
 			
-					Return: target
+					Return: radius
 			\*	--------------------------------------------------- */
-			getTarget(){
-				return this.target;
+			getRadius(){
+				return this.radius;
 			}
-
 		}
 	}
 }

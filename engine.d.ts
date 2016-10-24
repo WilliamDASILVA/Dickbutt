@@ -112,7 +112,7 @@ declare class Camera extends Scene {
     private rotationPoint;
     private isCameraLock;
     private cameraLockOn;
-    constructor(scene: any);
+    constructor(scene: Scene);
     setPosition(position: any, y?: number): void;
     getPosition(): Point;
     getDepth(): number;
@@ -189,15 +189,18 @@ declare module Update {
     function on(functionToCall: any): void;
 }
 declare module Render {
-    function setCamera(cam: any): void;
-    function getCamera(): any;
-    function add(elementToDownload: any): void;
-    function setDebugMode(value: boolean, type?: string): void;
-    function getWorld(): any;
+    function setCamera(camera: Camera): void;
+    function getCamera(): Camera;
     function setWorld(world: any): void;
-    function download(): void;
-    function ready(functionToCall: any): void;
-    function updateRender(layer: any): void;
+    function getWorld(): any;
+    function setDebugMode(value: boolean): void;
+}
+declare module Render {
+    function add(filePath: string, blocker?: boolean): void;
+    function download(): any;
+}
+declare module Render {
+    function update(layer: Render.Layer): void;
 }
 declare module Render {
     class Layer {
@@ -225,6 +228,17 @@ declare module Render {
         getData(): any;
         setSrc(src: string): void;
         onLoad(functionToCall: any): void;
+    }
+}
+declare module Render {
+    module ElementDraw {
+        function dispatch(element: any, context: any, position: any, size: any): void;
+    }
+}
+declare module Render {
+    module DrawableDraw {
+        function render(element: any, context: any, position: any, size: any): void;
+        function dispatch(element: any, context: any): void;
     }
 }
 declare module Render {
@@ -280,6 +294,11 @@ declare module Render {
     }
 }
 declare module Render {
+    module SpriteDraw {
+        function render(element: any, context: any, position: any, size: any): void;
+    }
+}
+declare module Render {
     class Sprite extends Drawable {
         frameSize: any;
         frameAmount: number;
@@ -304,6 +323,11 @@ declare module Render {
         setFreeze(value: boolean): void;
         setUniqueLoop(loop: any): void;
         playUniqueLoop(): void;
+    }
+}
+declare module Render {
+    module DrawDraw {
+        function dispatch(element: any, context: any, position: any, size: any): void;
     }
 }
 declare module Render {
@@ -338,8 +362,22 @@ declare module Render {
 }
 declare module Render {
     module Draw {
+        module RectangleDraw {
+            function render(element: any, context: any, position: any, size: any): void;
+        }
+    }
+}
+declare module Render {
+    module Draw {
         class Rectangle extends Draw {
             constructor(...parameters: any[]);
+        }
+    }
+}
+declare module Render {
+    module Draw {
+        module CircleDraw {
+            function render(element: any, context: any, position: any, size: any): void;
         }
     }
 }
@@ -355,6 +393,13 @@ declare module Render {
 }
 declare module Render {
     module Draw {
+        module PolygonDraw {
+            function render(element: any, context: any, position: any, size: any): void;
+        }
+    }
+}
+declare module Render {
+    module Draw {
         class Polygon extends Draw {
             vertices: any;
             constructor(vertices: any);
@@ -365,11 +410,25 @@ declare module Render {
 }
 declare module Render {
     module Draw {
+        module LineDraw {
+            function render(element: any, context: any, position: any, size: any): void;
+        }
+    }
+}
+declare module Render {
+    module Draw {
         class Line extends Draw {
             target: any;
             constructor(...parameters: any[]);
             setTarget(x: number, y: number): void;
             getTarget(): any;
+        }
+    }
+}
+declare module Render {
+    module Draw {
+        module TextDraw {
+            function render(element: any, context: any, position: any, size: any): void;
         }
     }
 }
@@ -400,6 +459,13 @@ declare module Render {
             setVerticalAlign(alignement: string): void;
             getVerticalAlign(): string;
             setMultiline(value: boolean): void;
+        }
+    }
+}
+declare module Render {
+    module Draw {
+        module PointDraw {
+            function render(element: any, context: any, position: any, size: any): void;
         }
     }
 }

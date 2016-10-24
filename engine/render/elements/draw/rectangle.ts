@@ -1,5 +1,8 @@
+/// <reference path="rectangleDraw.ts" />
+
 module Render{
 	export module Draw{
+
 		/*	--------------------------------------------------- *\
 				[class] Rectangle()
 		

@@ -1,3 +1,5 @@
+/// <reference path="spriteDraw.ts" />
+
 module Render{
 	/*	--------------------------------------------------- *\
 			[class] Sprite()

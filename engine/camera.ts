@@ -8,7 +8,7 @@
 class Camera extends Scene{
 
 	public position : Point;
-	private parentScene : any;
+	private parentScene : Scene;
 	private depth: number;
 	private depthPosition: Point;
 	private angle: number;
@@ -23,7 +23,7 @@ class Camera extends Scene{
 	
 			Return: nil
 	\*	--------------------------------------------------- */
-	constructor(scene:any){
+	constructor(scene : Scene){
 		super();
 		this.parentScene = scene;
         this.position = new Point(0,0);
@@ -74,7 +74,7 @@ class Camera extends Scene{
 	
 			Return: depth
 	\*	--------------------------------------------------- */
-	getDepth(){
+	getDepth():number{
 		return this.depth;
 	}
 
@@ -151,7 +151,7 @@ class Camera extends Scene{
 	
 			Return: angle in radian
 	\*	--------------------------------------------------- */
-	getRotation(){
+	getRotation():number{
 		return this.angle;
 	}
 
@@ -208,7 +208,7 @@ class Camera extends Scene{
 	
 			Return: true, false
 	\*	--------------------------------------------------- */
-	isLock(){
+	isLock():boolean{
 		return this.isCameraLock;
 	}
 

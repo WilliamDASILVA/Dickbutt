@@ -66,7 +66,6 @@ var Global;
     \*    --------------------------------------------------- */
     function getPositionFromScreen(screenX, screenY, cam) {
         var position = cam.getOrigin();
-        console.log("Cam position", position);
         var depth = cam.getDepth();
         var actual = { x: (position.x + screenX) / depth, y: (position.y + screenY) / depth };
         return new Point(actual.x, actual.y);
@@ -1622,559 +1621,240 @@ var Update;
     }
     Update.on = on;
 })(Update || (Update = {}));
-/*	--------------------------------------------------- *\
+/*    --------------------------------------------------- *\
         Render
-\*	--------------------------------------------------- */
+\*    --------------------------------------------------- */
 var Render;
 (function (Render) {
-    var renderCamera = null;
-    var image_prefix = "./";
-    var elementsToDownload = [];
-    var fToCallWhenDownloadReady = [];
-    var debugMode = {
-        active: false,
-        type: "aabb"
+    var settings = {
+        debug: {
+            active: false,
+            type: 'AABB'
+        }
     };
-    var actualWorld = null;
-    /*	--------------------------------------------------- *\
-            [function] setCamera()
+    var vars = {
+        camera: null,
+        world: null,
+        elementsOnScreen: 0
+    };
+    /*    --------------------------------------------------- *\
+            [function] setCamera(camera)
     
-            * Add une camera au Render *
+            * Set the used camera *
     
             Return: nil
-    \*	--------------------------------------------------- */
-    function setCamera(cam) {
-        renderCamera = cam;
+    \*    --------------------------------------------------- */
+    function setCamera(camera) {
+        vars.camera = camera;
     }
     Render.setCamera = setCamera;
-    /*	--------------------------------------------------- *\
+    /*    --------------------------------------------------- *\
             [function] getCamera()
     
-            * Retourne l'element camera *
+            * Return the used camera *
     
             Return: camera
-    \*	--------------------------------------------------- */
+    \*    --------------------------------------------------- */
     function getCamera() {
-        return renderCamera;
+        return vars.camera;
     }
     Render.getCamera = getCamera;
     /*    --------------------------------------------------- *\
-            [function] add()
+            [function] setWorld(world)
     
-            * Add un element a download *
+            * Set the used physics world *
     
             Return: nil
     \*    --------------------------------------------------- */
-    function add(elementToDownload) {
-        var elementToDL = {
-            element: elementToDownload,
-            downloaded: false
-        };
-        elementsToDownload.push(elementToDL);
-    }
-    Render.add = add;
-    /*	--------------------------------------------------- *\
-            [function] setDebugMode(boolean)
-    
-            * Set le mode debug *
-    
-            Return: nil
-    \*	--------------------------------------------------- */
-    function setDebugMode(value, type) {
-        if (type === void 0) { type = "aabb"; }
-        debugMode.active = value;
-        debugMode.type = type;
-    }
-    Render.setDebugMode = setDebugMode;
-    /*	--------------------------------------------------- *\
-            [function] getWorld()
-    
-            * Retourne le world *
-    
-            Return: world
-    \*	--------------------------------------------------- */
-    function getWorld() {
-        return actualWorld;
-    }
-    Render.getWorld = getWorld;
-    /*	--------------------------------------------------- *\
-            [function] setWorld(world)
-    
-            * Set le world *
-    
-            Return: nil
-    \*	--------------------------------------------------- */
     function setWorld(world) {
-        actualWorld = world;
+        vars.world = world;
     }
     Render.setWorld = setWorld;
     /*    --------------------------------------------------- *\
+            [function] getWorld()
+    
+            * Return the physics world used *
+    
+            Return: world
+    \*    --------------------------------------------------- */
+    function getWorld() {
+        return vars.world;
+    }
+    Render.getWorld = getWorld;
+    /*    --------------------------------------------------- *\
+            [function] setDebugMode(value)
+    
+            * Set the render's debug mode *
+    
+            Return: nil
+    \*    --------------------------------------------------- */
+    function setDebugMode(value) {
+        settings.debug.active = value;
+    }
+    Render.setDebugMode = setDebugMode;
+})(Render || (Render = {}));
+/*    --------------------------------------------------- *\
+        Render : Download
+\*    --------------------------------------------------- */
+var Render;
+(function (Render) {
+    var vars = {
+        files: [],
+        imagePrefix: './'
+    };
+    /*    --------------------------------------------------- *\
+            [function] add(filePath, blocker)
+    
+            * Add the current file to be downloaded, if blocker is passed
+            then if the download fails for that file, it fails for everything *
+    
+            Return: nil
+    \*    --------------------------------------------------- */
+    function add(filePath, blocker) {
+        if (blocker === void 0) { blocker = false; }
+        var file = {
+            path: filePath,
+            downloaded: false,
+            blocker: blocker
+        };
+        vars.files.push(file);
+    }
+    Render.add = add;
+    /*    --------------------------------------------------- *\
             [function] download()
     
-            * Preload toute les images avant de commencer le jeu *
+            * Download all the files that has been added *
     
-            Return: nil
+            Return: promise
     \*    --------------------------------------------------- */
     function download() {
-        var filesDownloaded = 0;
-        if (elementsToDownload.length == 0) {
-            for (var i = fToCallWhenDownloadReady.length - 1; i >= 0; i--) {
-                fToCallWhenDownloadReady[i]();
+        var downloaded = 0;
+        return new window['Promise'](function (resolve, reject) {
+            if (vars.files.length == 0) {
+                resolve(downloaded);
             }
-        }
-        for (var i = elementsToDownload.length - 1; i >= 0; i--) {
-            var obj = new Image();
-            obj.src = image_prefix + elementsToDownload[i].element;
-            var elementName = elementsToDownload[i].element;
-            obj.addEventListener("load", function () {
-                for (var i = elementsToDownload.length - 1; i >= 0; i--) {
-                    if (elementsToDownload[i].element == elementName) {
-                        elementsToDownload[i].downloaded = true;
-                        // Vérifie si tous les download ne sont pas deja fini
-                        for (var k = elementsToDownload.length - 1; k >= 0; k--) {
-                            if (elementsToDownload[k].downloaded == true) {
-                                filesDownloaded += 1;
-                            }
+            var _loop_1 = function(file) {
+                obj = new Image();
+                obj.src = vars.imagePrefix + file.path;
+                path = file.path;
+                obj.addEventListener("error", function (e) {
+                    if (file.blocker) {
+                        reject(e);
+                    }
+                    else {
+                        downloaded++;
+                    }
+                });
+                obj.addEventListener("load", function () {
+                    for (var _i = 0, _a = vars.files; _i < _a.length; _i++) {
+                        var file_1 = _a[_i];
+                        if (file_1.path == path) {
+                            file_1.downloaded = true;
+                            downloaded++;
                         }
                     }
-                }
-                // Tous les downlaod ont été effectués.
-                if (filesDownloaded == elementsToDownload.length) {
-                    for (var i = fToCallWhenDownloadReady.length - 1; i >= 0; i--) {
-                        fToCallWhenDownloadReady[i]();
+                    // All the downloads are done
+                    if (downloaded == vars.files.length) {
+                        resolve(downloaded);
                     }
-                }
-            });
-        }
+                });
+            };
+            var obj, path;
+            for (var _i = 0, _a = vars.files; _i < _a.length; _i++) {
+                var file = _a[_i];
+                _loop_1(file);
+            }
+        });
     }
     Render.download = download;
+})(Render || (Render = {}));
+/*    --------------------------------------------------- *\
+        Render : Layer
+\*    --------------------------------------------------- */
+var Render;
+(function (Render) {
     /*    --------------------------------------------------- *\
-            [function] ready()
+            [function] orderElements(elements)
     
-            * Fires quand toute les ressources sont téléchargés *
+            * Order elements by depth *
+    
+            Return: elements
+    \*    --------------------------------------------------- */
+    function orderElements(elements) {
+        return elements.sort(function (a, b) {
+            a.depth = a.depth || 0;
+            b.depth = b.depth || 0;
+            if (a.depth < b.depth) {
+                return -1;
+            }
+            else if (a.depth > b.depth) {
+                return 1;
+            }
+            else {
+                return 0;
+            }
+        });
+    }
+    /*    --------------------------------------------------- *\
+            [function] cameraTransformation(context)
+    
+            * Do all the camera transformations *
     
             Return: nil
     \*    --------------------------------------------------- */
-    function ready(functionToCall) {
-        fToCallWhenDownloadReady.push(functionToCall);
+    function cameraTransformation(context) {
+        var camera = Render.getCamera();
+        var screen = Global.getScreenSize();
+        // Scale
+        context.translate(screen.width / 2, screen.height / 2);
+        context.scale(camera.getDepth(), camera.getDepth());
+        context.translate((-screen.width / 2), (-screen.height / 2));
+        // Rotate
+        context.translate(screen.width / 2, screen.height / 2);
+        context.rotate((camera.getRotation() * Math.PI) / 180);
+        context.translate(-screen.width / 2, -screen.height / 2);
+        // Rotate the canvas
+        if (camera.getRotation() != 0) {
+            var rotationPoint = camera.getRotationPoint();
+            context.translate(rotationPoint.x, rotationPoint.y);
+            context.rotate(camera.getRotation());
+            context.translate(-rotationPoint.x, -rotationPoint.y);
+        }
     }
-    Render.ready = ready;
-    /*	--------------------------------------------------- *\
-            Render loop
-    \*	--------------------------------------------------- */
-    var elementToDraw;
-    /*	--------------------------------------------------- *\
-            [function] updateRender()
+    /*    --------------------------------------------------- *\
+            [function] update(layer)
     
-            * Fonction appellé pour dispatcher le rendu *
+            * Dispatch render functions *
     
             Return: nil
-    \*	--------------------------------------------------- */
-    function updateRender(layer) {
+    \*    --------------------------------------------------- */
+    function update(layer) {
         var canvas = layer.getCanvas();
         var context = layer.getContext();
         var elements = layer.getElements();
+        elements = orderElements(elements);
+        var screen = Global.getScreenSize();
+        var camera = Render.getCamera();
         if (context && canvas) {
-            var screenSize = Global.getScreenSize();
-            context.clearRect(0, 0, screenSize.width, screenSize.height);
+            context.clearRect(0, 0, screen.width, screen.height);
             context.save();
-            var camera = getCamera();
-            // Smooth
-            if (!layer.isSmooth()) {
-                context.mozImageSmoothingEnabled = false;
-                context.imageSmoothingEnabled = false;
-            }
-            // Sort elements by depth
-            elements.sort(function (a, b) {
-                a.depth = a.depth || 0;
-                b.depth = b.depth || 0;
-                if (a.depth < b.depth) {
-                    return -1;
-                }
-                else if (a.depth > b.depth) {
-                    return 1;
-                }
-                else {
-                    return 0;
-                }
-            });
-            // Camera management
+            // Canvas smooth
+            context.mozImageSmoothingEnabled = layer.isSmooth();
+            context.msImageSmoothingEnabled = layer.isSmooth();
+            context.imageSmoothingEnabled = layer.isSmooth();
+            // Camera transformations
             if (layer.affectedByCamera) {
-                if (camera) {
-                    var depth = camera.getDepth();
-                    // Scale the canvas
-                    context.translate(screenSize.width / 2, screenSize.height / 2);
-                    context.scale(camera.getDepth(), camera.getDepth());
-                    context.translate((-screenSize.width / 2), (-screenSize.height / 2));
-                    // Rotate
-                    context.translate(screenSize.width / 2, screenSize.height / 2);
-                    context.rotate((camera.getRotation() * Math.PI) / 180);
-                    context.translate(-screenSize.width / 2, -screenSize.height / 2);
-                    // Rotate the canvas
-                    if (camera.getRotation() != 0) {
-                        var rotationPoint = camera.getRotationPoint();
-                        context.translate(rotationPoint.x, rotationPoint.y);
-                        context.rotate(camera.getRotation());
-                        context.translate(-rotationPoint.x, -rotationPoint.y);
-                    }
-                }
+                cameraTransformation(context);
             }
-            // Draw every elements			
-            if (elements) {
-                for (var i = 0; i < elements.length; i++) {
-                    if (elements[i]) {
-                        // Check if it's a normal drawable or a grid
-                        elementToDraw = elements[i];
-                        if (elementToDraw.getType() != "drawable") {
-                            switch (elementToDraw.getType()) {
-                                case "grid":
-                                    var grid = elementToDraw;
-                                    var tiles = grid.getTiles();
-                                    for (var k = tiles.length - 1; k >= 0; k--) {
-                                        //var pos = elementToDraw.getPosition();
-                                        var posInGrid = tiles[k].getPositionIntoGrid();
-                                        var pos = { x: posInGrid.x * grid.getTileSize(), y: posInGrid.y * grid.getTileSize() };
-                                        elementToDraw = tiles[k].getAssignedDrawables()[0];
-                                        var size = elementToDraw.getSize();
-                                        // Gestion de la camera
-                                        var renderPos = { x: pos.x, y: pos.y };
-                                        if (layer.affectedByCamera && camera) {
-                                            var cPos = camera.getPosition();
-                                            var cameraDepth = camera.getDepth() + 1;
-                                            // isFixed
-                                            if (!elementToDraw.isFixed()) {
-                                                renderPos.x = pos.x + ((canvas.width / 2) - cPos.x) / cameraDepth;
-                                                renderPos.y = pos.y + ((canvas.height / 2) - cPos.y) / cameraDepth;
-                                            }
-                                        }
-                                        drawElement(context, elementToDraw, renderPos, size);
-                                    }
-                                    break;
-                                case "draw":
-                                    var position = elementToDraw.getPosition();
-                                    if (!position) {
-                                        position = elementToDraw.absolutePosition;
-                                    }
-                                    // Check if it's a line
-                                    var shape = elementToDraw.getShape();
-                                    if (shape == "line") {
-                                        var target = elementToDraw.getTarget();
-                                        var targetTemp = {
-                                            x: target.x,
-                                            y: target.y
-                                        };
-                                    }
-                                    var size = elementToDraw.getSize();
-                                    var positionTemp = { x: position.x, y: position.y };
-                                    // camera
-                                    if (layer.affectedByCamera && camera) {
-                                        var cameraPosition = camera.getPosition();
-                                        // is drawable fixed
-                                        if (!elementToDraw.isFixed()) {
-                                            positionTemp.x = position.x + ((canvas.width / 2) - cameraPosition.x);
-                                            positionTemp.y = position.y + ((canvas.height / 2) - cameraPosition.y);
-                                            if (targetTemp && target) {
-                                                targetTemp.x = target.x + ((canvas.width / 2) - cameraPosition.x);
-                                                targetTemp.y = target.y + ((canvas.height / 2) - cameraPosition.y);
-                                            }
-                                        }
-                                    }
-                                    drawElement(context, elementToDraw, positionTemp, size, targetTemp);
-                                    break;
-                                default:
-                                    // Draw each drawable of an element
-                                    var assignedDrawables = elementToDraw.getAssignedDrawables();
-                                    for (var k = 0; k < assignedDrawables.length; ++k) {
-                                        if (assignedDrawables[k]) {
-                                            var position = assignedDrawables[k].getPosition();
-                                            var size = assignedDrawables[k].getSize();
-                                            if (Render.getCamera()) {
-                                                var cameraPosition = Render.getCamera().getPosition();
-                                                var cameraDepth = Render.getCamera().getDepth() + 1;
-                                                // is drawable fixed
-                                                if (!assignedDrawables[k].isFixed()) {
-                                                    position.x = position.x + ((canvas.width / 2) - cameraPosition.x) / cameraDepth;
-                                                    position.y = position.y + ((canvas.height / 2) - cameraPosition.y) / cameraDepth;
-                                                }
-                                            }
-                                            drawElement(context, assignedDrawables[k], position, size);
-                                        }
-                                    }
-                                    break;
-                            }
-                        }
-                        else {
-                            // Draw a normal drawable
-                            var elementPosition = elementToDraw.getPosition();
-                            var size = elementToDraw.getSize();
-                            // Gestion de la camera
-                            if (layer.affectedByCamera && renderCamera) {
-                                var cPos = renderCamera.getPosition();
-                                var cameraDepth = renderCamera.getDepth() + 1;
-                                // isFixed
-                                if (!elementToDraw.isFixed()) {
-                                    elementPosition.x = elementPosition.x + ((canvas.width / 2) - cPos.x) / cameraDepth;
-                                    elementPosition.y = elementPosition.y + ((canvas.height / 2) - cPos.y) / cameraDepth;
-                                }
-                            }
-                            drawElement(context, elementToDraw, elementPosition, size);
-                        }
-                    }
-                }
-            }
-            // Draw debug for every elements
-            if (debugMode.active) {
-                for (var k = _elements.length - 1; k >= 0; k--) {
-                    context.lineWidth = 2;
-                    context.beginPath();
-                    context.strokeStyle = "#00FF00";
-                    var ePos = _elements[k].getPosition();
-                    if (debugMode.type == "vertices") {
-                        if (_elements[k].shapes[0] && _elements[k].shapes[0].vertices) {
-                            var vertices = _elements[k].shapes[0].vertices;
-                            var firstVert = true;
-                            for (var i = 0; i < vertices.length; ++i) {
-                                if (firstVert) {
-                                    context.moveTo(ePos.x + vertices[i][0] + _elements[k].shapes[0].width / 2, ePos.y + vertices[i][1] + _elements[k].shapes[0].height / 2);
-                                    firstVert = false;
-                                }
-                                else {
-                                    context.lineTo(ePos.x + vertices[i][0] + _elements[k].shapes[0].width / 2, ePos.y + vertices[i][1] + _elements[k].shapes[0].height / 2);
-                                }
-                            }
-                        }
-                    }
-                    else {
-                        if (_elements[k].aabb && _elements[k].aabb.lowerBound[0] != 0) {
-                            var aabb = _elements[k].aabb;
-                            var lower = Global.getPositionFromWorld(aabb.lowerBound[0], aabb.lowerBound[1], renderCamera);
-                            var upper = Global.getPositionFromWorld(aabb.upperBound[0], aabb.upperBound[1], renderCamera);
-                            context.moveTo(lower.x, lower.y);
-                            context.lineTo(upper.x, lower.y);
-                            context.lineTo(upper.x, upper.y);
-                            context.lineTo(lower.x, upper.y);
-                        }
-                    }
-                    context.closePath();
-                    context.stroke();
-                }
+            // Dispatch each elements depending on the type
+            for (var _i = 0, elements_1 = elements; _i < elements_1.length; _i++) {
+                var element = elements_1[_i];
+                Render.DrawableDraw.dispatch(element, context);
             }
             context.restore();
         }
     }
-    Render.updateRender = updateRender;
-    function drawElement(context, elementToDraw, position, size, secondPosition) {
-        if (secondPosition === void 0) { secondPosition = null; }
-        position.x = Math.floor(position.x);
-        position.y = Math.floor(position.y);
-        // Do the same calculations for the second position
-        if (secondPosition) {
-            secondPosition.x = Math.floor(secondPosition.x);
-            secondPosition.y = Math.floor(secondPosition.y);
-        }
-        size.width = size.width || 1;
-        size.height = size.height || 1;
-        // Check if the element is out of the screen
-        var camera = Render.getCamera();
-        var cameraDepth = camera.getDepth();
-        var of = { x: 0, y: 0 };
-        if (position.x > -size.width - of.x && position.x <= Global.getScreenSize().width + size.width + of.x && position.y > -size.height - of.y && position.y <= Global.getScreenSize().height + size.height + of.y) {
-            if (elementToDraw.isVisible(null)) {
-                context.save();
-                // opacity
-                context.globalAlpha = elementToDraw.getOpacity();
-                // smooth
-                if (!elementToDraw.isSmooth()) {
-                    context.mozImageSmoothingEnabled = false;
-                    context.imageSmoothingEnabled = false;
-                }
-                // flipped
-                if (elementToDraw.isFlipped(null)) {
-                    context.scale(-1, 1);
-                    position.x = -position.x - size.width;
-                    if (secondPosition) {
-                        secondPosition.x = -secondPosition.x - size.width;
-                    }
-                }
-                var rotationPoint = elementToDraw.getRotationPoint();
-                if (elementToDraw.fixedToCenter) {
-                    rotationPoint.x = position.x + (size.width / 2);
-                    rotationPoint.y = position.y + (size.height / 2);
-                }
-                if (elementToDraw.getRotation() != 0) {
-                    context.translate(rotationPoint.x, rotationPoint.y);
-                    context.rotate(elementToDraw.getRotation() * (Math.PI / 180));
-                    context.translate(-rotationPoint.x, -rotationPoint.y);
-                }
-                if (elementToDraw.getType() == "draw") {
-                    context.fillStyle = elementToDraw.getColor();
-                    // stroke
-                    if (elementToDraw.getStrokeSize() != 0) {
-                        context.lineWidth = elementToDraw.getStrokeSize();
-                        context.strokeStyle = elementToDraw.getStrokeColor();
-                    }
-                    // shadow
-                    if (elementToDraw.isShadowEnabled()) {
-                        context.shadowColor = elementToDraw.getShadowColor();
-                        context.shadowBlur = elementToDraw.getShadowBlur();
-                        context.shadowOffsetX = elementToDraw.getShadowPosition().x;
-                        context.shadowOffsetY = elementToDraw.getShadowPosition().y;
-                    }
-                    switch (elementToDraw.getShape()) {
-                        case "rectangle":
-                            context.beginPath();
-                            context.rect(Math.ceil(rotationPoint.x - (size.width / 2)), Math.ceil(rotationPoint.y - (size.height / 2)), Math.ceil(size.width), Math.ceil(size.height));
-                            context.closePath();
-                            break;
-                        case "circle":
-                            context.beginPath();
-                            context.arc(Math.ceil(rotationPoint.x - (size.width / 2)), Math.ceil(rotationPoint.y - (size.height / 2)), elementToDraw.getRadius(), 0, 2 * Math.PI, false);
-                            context.closePath();
-                            break;
-                        case "polygon":
-                            context.beginPath();
-                            for (var i = 0; i < elementToDraw.getVertices().length; ++i) {
-                                var vertice = elementToDraw.getVertices()[i];
-                                if (i == 0) {
-                                    context.moveTo(vertice.x + position.x, vertice.y + position.y);
-                                }
-                                else {
-                                    context.lineTo(vertice.x + position.x, vertice.y + position.y);
-                                }
-                            }
-                            context.closePath();
-                            break;
-                        case "line":
-                            context.beginPath();
-                            context.moveTo(Math.ceil(rotationPoint.x - (size.width / 2)), Math.ceil(rotationPoint.y - (size.height / 2)));
-                            context.lineTo(Math.ceil(secondPosition.x), Math.ceil(secondPosition.y));
-                            context.closePath();
-                            break;
-                        case "text":
-                            context.font = elementToDraw.getFontStyle() + " " + elementToDraw.getFontSize() + "px " + elementToDraw.getFont();
-                            context.textBaseline = elementToDraw.getBaseline();
-                            if (elementToDraw.getStrokeSize() != 0) {
-                                context.strokeText(elementToDraw.getValue(), Math.ceil(rotationPoint.x - (size.width / 2)), Math.ceil(rotationPoint.y - (size.height / 2)));
-                            }
-                            var myText = new String(elementToDraw.getValue());
-                            var length = elementToDraw.getValue().length;
-                            var lineHeight = elementToDraw.getFontSize();
-                            var lineWidth = length * lineHeight;
-                            var size = elementToDraw.getSize();
-                            var numberLines = Math.ceil(lineWidth / size.width);
-                            var numberOfCharacterInOneLine = Math.floor(size.width / lineHeight) * 1.8;
-                            var lines = [];
-                            if (lineWidth > size.width) {
-                                numberLines = numberLines - 1;
-                            }
-                            for (var i = 0; i < numberLines; i++) {
-                                lines[i] = [];
-                            }
-                            ;
-                            var currentLetter = 0;
-                            var currentLine = 0;
-                            for (var letter = 0; letter < myText.length; letter++) {
-                                if (currentLetter < numberOfCharacterInOneLine) {
-                                    lines[currentLine].push(myText[letter]);
-                                    currentLetter++;
-                                }
-                                else {
-                                    currentLetter = 0;
-                                    currentLine++;
-                                    if (!lines[currentLine]) {
-                                        lines[currentLine] = [];
-                                    }
-                                    lines[currentLine].push(myText[letter]);
-                                }
-                            }
-                            ;
-                            var align = elementToDraw.getAlign();
-                            var verticalAlign = elementToDraw.getVerticalAlign();
-                            context.textAlign = align;
-                            var linesHeight = lineHeight * lines.length;
-                            var offsetPosition = { x: 0, y: 0 };
-                            for (var i = 0; i < lines.length; i++) {
-                                var myString = "";
-                                for (var k = 0; k < lines[i].length; k++) {
-                                    myString = myString + lines[i][k];
-                                }
-                                ;
-                                if (verticalAlign == "middle") {
-                                    offsetPosition.y = offsetPosition.y + lineHeight;
-                                }
-                                if (align == "center") {
-                                    offsetPosition.x = (size.width / 2);
-                                }
-                                context.fillText(myString, Math.ceil(rotationPoint.x - (size.width / 2)) + offsetPosition.x, (Math.ceil(rotationPoint.y - (size.height / 2)) + (i * lineHeight) - (lineHeight / 4)) + offsetPosition.y);
-                            }
-                            ;
-                            break;
-                        case "point":
-                            context.beginPath();
-                            context.moveTo(Math.ceil(rotationPoint.x - (size.width / 2)) - 5, Math.ceil(rotationPoint.y - (size.height / 2)));
-                            context.lineTo(Math.ceil(rotationPoint.x - (size.width / 2)) + 5, Math.ceil(rotationPoint.y - (size.height / 2)));
-                            context.moveTo(Math.ceil(rotationPoint.x - (size.width / 2)), Math.ceil(rotationPoint.y - (size.height / 2)) - 5);
-                            context.lineTo(Math.ceil(rotationPoint.x - (size.width / 2)), Math.ceil(rotationPoint.y - (size.height / 2)) + 5);
-                            context.closePath();
-                            break;
-                    }
-                    if (elementToDraw.getShape() != "text") {
-                        context.fill();
-                    }
-                    if (elementToDraw.getStrokeSize() != 0) {
-                        context.stroke();
-                    }
-                }
-                else {
-                    var futurPosition = null;
-                    if (elementToDraw.getRotation() != 0) {
-                        futurPosition = { x: rotationPoint.x - (size.width / 2), y: rotationPoint.y - (size.height / 2) };
-                    }
-                    else {
-                        futurPosition = position;
-                    }
-                    if (elementToDraw.getData() != false) {
-                        if (elementToDraw.isSprite()) {
-                            var currentFrame = elementToDraw.getCurrentFrame();
-                            var frameSize = elementToDraw.getFrameSize();
-                            var frameLine = elementToDraw.getFrameLine();
-                            context.drawImage(elementToDraw.getData(), Math.ceil(frameSize.width * currentFrame), Math.ceil(frameSize.height * frameLine), Math.ceil(frameSize.width), Math.ceil(frameSize.height), Math.ceil(futurPosition.x), Math.ceil(futurPosition.y), Math.ceil(size.width), Math.ceil(size.height));
-                        }
-                        else {
-                            var cropArea = null;
-                            if (elementToDraw.isCropped()) {
-                                cropArea = elementToDraw.getCrop();
-                            }
-                            else {
-                                cropArea = { x: 0, y: 0, width: elementToDraw.getData().width, height: elementToDraw.getData().height };
-                            }
-                            context.drawImage(elementToDraw.getData(), cropArea.x, cropArea.y, cropArea.width, cropArea.height, Math.ceil(futurPosition.x), Math.ceil(futurPosition.y), Math.ceil(size.width), Math.ceil(size.height));
-                        }
-                    }
-                }
-                // debug mode for drawable
-                if (debugMode.active) {
-                    context.lineWidth = 4;
-                    context.strokeStyle = "#FF0000";
-                    var pos = position;
-                    /*if(typeof elementToDraw.getShape() != "undefined"){
-                        if(elementToDraw.getShape() == "circle"){
-                            pos.x = pos.x - elementToDraw.getRadius();
-                            pos.y = pos.y - elementToDraw.getRadius();
-                        }
-                    }
-                    else{
-                        console.log("RENDER FAILED", elementToDraw);
-                    }*/
-                    context.strokeRect(pos.x, pos.y, size.width, size.height);
-                }
-                context.restore();
-            }
-        }
-        else {
-            return;
-        }
-    }
+    Render.update = update;
 })(Render || (Render = {}));
 var Render;
 (function (Render) {
@@ -2214,7 +1894,7 @@ var Render;
         }
         Layer.prototype.render = function () {
             var _this = this;
-            Render.updateRender(this);
+            Render.update(this);
             window.requestAnimationFrame(function () {
                 _this.render();
             });
@@ -2363,6 +2043,113 @@ var Render;
     }());
     Render.Texture = Texture;
 })(Render || (Render = {}));
+var Render;
+(function (Render) {
+    var ElementDraw;
+    (function (ElementDraw) {
+        function dispatch(element, context, position, size) {
+            var assignedDrawables = element.getAssignedDrawables();
+            for (var _i = 0, assignedDrawables_1 = assignedDrawables; _i < assignedDrawables_1.length; _i++) {
+                var el = assignedDrawables_1[_i];
+                if (el.isSprite()) {
+                    Render.SpriteDraw.render(el, context, position, size);
+                }
+                else {
+                    Render.DrawableDraw.render(el, context, position, size);
+                }
+            }
+        }
+        ElementDraw.dispatch = dispatch;
+    })(ElementDraw = Render.ElementDraw || (Render.ElementDraw = {}));
+})(Render || (Render = {}));
+/// <reference path="elementDraw.ts" />
+var Render;
+(function (Render) {
+    var DrawableDraw;
+    (function (DrawableDraw) {
+        function render(element, context, position, size) {
+            if (element.getData()) {
+                if (!element.isSprite()) {
+                    var data = element.getData();
+                    var cropArea = {
+                        x: 0,
+                        y: 0,
+                        width: data.width,
+                        height: data.height
+                    };
+                    if (element.isCropped()) {
+                        cropArea = element.getCrop();
+                    }
+                    context.drawImage(data, cropArea.x, cropArea.y, cropArea.width, cropArea.height, position.x, position.y, size.width, size.height);
+                }
+            }
+        }
+        DrawableDraw.render = render;
+        function dispatch(element, context) {
+            if (element) {
+                var position = element.getPosition();
+                var size = element.getSize();
+                var screen_1 = Global.getScreenSize();
+                // Apply element's position change made by the camera
+                var tempPos = { x: position.x, y: position.y };
+                if (!element.isFixed()) {
+                    var cameraPosition = Render.getCamera().getPosition();
+                    tempPos.x = position.x + ((screen_1.width / 2) - cameraPosition.x);
+                    tempPos.y = position.y + ((screen_1.height / 2) - cameraPosition.y);
+                }
+                // Check for boundaries
+                //console.log(tempPos, size, screen);
+                if (tempPos.x >= -size.width && tempPos.x <= screen_1.width
+                    && tempPos.y >= -size.height && tempPos.y <= screen_1.height) {
+                    context.save();
+                    // flipped
+                    if (element.isFlipped(null)) {
+                        context.scale(-1, 1);
+                        position.x = -position.x - size.width;
+                    }
+                    // element opacity
+                    context.globalAlpha = element.getOpacity();
+                    // smooth
+                    if (!element.isSmooth()) {
+                        context.mozImageSmoothingEnabled = false;
+                        context.imageSmoothingEnabled = false;
+                    }
+                    // rotation
+                    var rotationPoint = element.getRotationPoint();
+                    if (element.fixedToCenter) {
+                        rotationPoint.x = tempPos.x + (size.width / 2);
+                        rotationPoint.y = tempPos.y + (size.height / 2);
+                    }
+                    if (element.getRotation() != 0) {
+                        context.translate(rotationPoint.x, rotationPoint.y);
+                        context.rotate(element.getRotation() * (Math.PI / 180));
+                        context.translate(-rotationPoint.x, -rotationPoint.y);
+                    }
+                    // Do calculations for AABB in screen
+                    switch (element.getType()) {
+                        case "draw":
+                            Render.DrawDraw.dispatch(element, context, tempPos, size);
+                            break;
+                        case "drawable":
+                            if (element.isSprite()) {
+                                Render.SpriteDraw.render(element, context, tempPos, size);
+                            }
+                            else {
+                                Render.DrawableDraw.render(element, context, tempPos, size);
+                            }
+                            break;
+                        default:
+                            Render.ElementDraw.dispatch(element, context, tempPos, size);
+                            break;
+                    }
+                    context.restore();
+                }
+            }
+        }
+        DrawableDraw.dispatch = dispatch;
+    })(DrawableDraw = Render.DrawableDraw || (Render.DrawableDraw = {}));
+})(Render || (Render = {}));
+/// <reference path="drawableDraw.ts" />
 var Render;
 (function (Render) {
     /*	--------------------------------------------------- *\
@@ -2724,6 +2511,23 @@ var Render;
 })(Render || (Render = {}));
 var Render;
 (function (Render) {
+    var SpriteDraw;
+    (function (SpriteDraw) {
+        function render(element, context, position, size) {
+            if (element.isSprite()) {
+                var currentFrame = element.getCurrentFrame();
+                var frameSize = element.getFrameSize();
+                var frameLine = element.getFrameLine();
+                var data = element.getData();
+                context.drawImage(data, Math.ceil(frameSize.width * currentFrame), Math.ceil(frameSize.height * frameLine), Math.ceil(frameSize.width), Math.ceil(frameSize.height), Math.ceil(position.x), Math.ceil(position.y), Math.ceil(size.width), Math.ceil(size.height));
+            }
+        }
+        SpriteDraw.render = render;
+    })(SpriteDraw = Render.SpriteDraw || (Render.SpriteDraw = {}));
+})(Render || (Render = {}));
+/// <reference path="spriteDraw.ts" />
+var Render;
+(function (Render) {
     /*	--------------------------------------------------- *\
             [class] Sprite()
     
@@ -2941,6 +2745,61 @@ var Render;
 })(Render || (Render = {}));
 var Render;
 (function (Render) {
+    var DrawDraw;
+    (function (DrawDraw) {
+        function dispatch(element, context, position, size) {
+            if (element) {
+                var mod = null;
+                // shadow
+                if (element.isShadowEnabled()) {
+                    var shadowPosition = element.getShadowPosition();
+                    context.shadowColor = element.getShadowColor();
+                    context.shadowBlur = element.getShadowBlur();
+                    context.shadowOffsetX = shadowPosition.x;
+                    context.shadowOffsetY = shadowPosition.y;
+                }
+                switch (element.getShape()) {
+                    case "circle":
+                        mod = 'CircleDraw';
+                        break;
+                    case "line":
+                        mod = 'LineDraw';
+                        break;
+                    case "point":
+                        mod = 'PointDraw';
+                        break;
+                    case "polygon":
+                        mod = 'PolygonDraw';
+                        break;
+                    case "rectangle":
+                        mod = 'RectangleDraw';
+                        break;
+                    case "text":
+                        mod = 'TextDraw';
+                        break;
+                }
+                if (mod) {
+                    Render.Draw[mod].render(element, context, position, size);
+                }
+                // Fill
+                context.fillStyle = element.getColor();
+                if (mod != "TextDraw") {
+                    context.fill();
+                }
+                // Stroke
+                if (element.getStrokeSize() != 0) {
+                    context.lineWidth = element.getStrokeSize();
+                    context.strokeStyle = element.getStrokeColor();
+                    context.stroke();
+                }
+            }
+        }
+        DrawDraw.dispatch = dispatch;
+    })(DrawDraw = Render.DrawDraw || (Render.DrawDraw = {}));
+})(Render || (Render = {}));
+/// <reference path="drawDraw.ts" />
+var Render;
+(function (Render) {
     var Draw;
     (function (Draw_1) {
         /*	--------------------------------------------------- *\
@@ -3128,6 +2987,22 @@ var Render;
 (function (Render) {
     var Draw;
     (function (Draw) {
+        var RectangleDraw;
+        (function (RectangleDraw) {
+            function render(element, context, position, size) {
+                context.beginPath();
+                context.rect(position.x, position.y, size.width, size.height);
+                context.closePath();
+            }
+            RectangleDraw.render = render;
+        })(RectangleDraw = Draw.RectangleDraw || (Draw.RectangleDraw = {}));
+    })(Draw = Render.Draw || (Render.Draw = {}));
+})(Render || (Render = {}));
+/// <reference path="rectangleDraw.ts" />
+var Render;
+(function (Render) {
+    var Draw;
+    (function (Draw) {
         /*	--------------------------------------------------- *\
                 [class] Rectangle()
         
@@ -3161,6 +3036,23 @@ var Render;
         Draw.Rectangle = Rectangle;
     })(Draw = Render.Draw || (Render.Draw = {}));
 })(Render || (Render = {}));
+var Render;
+(function (Render) {
+    var Draw;
+    (function (Draw) {
+        var CircleDraw;
+        (function (CircleDraw) {
+            function render(element, context, position, size) {
+                var radius = element.getRadius();
+                context.beginPath();
+                context.arc(position.x + radius, position.y + radius, radius, 0, 2 * Math.PI, false);
+                context.closePath();
+            }
+            CircleDraw.render = render;
+        })(CircleDraw = Draw.CircleDraw || (Draw.CircleDraw = {}));
+    })(Draw = Render.Draw || (Render.Draw = {}));
+})(Render || (Render = {}));
+/// <reference path="circleDraw.ts" />
 var Render;
 (function (Render) {
     var Draw;
@@ -3201,6 +3093,7 @@ var Render;
             \*	--------------------------------------------------- */
             Circle.prototype.setRadius = function (radius) {
                 this.radius = radius;
+                this.setSize(radius * 2, radius * 2);
             };
             /*	--------------------------------------------------- *\
                     [function] getRadius()
@@ -3217,6 +3110,30 @@ var Render;
         Draw.Circle = Circle;
     })(Draw = Render.Draw || (Render.Draw = {}));
 })(Render || (Render = {}));
+var Render;
+(function (Render) {
+    var Draw;
+    (function (Draw) {
+        var PolygonDraw;
+        (function (PolygonDraw) {
+            function render(element, context, position, size) {
+                context.beginPath();
+                for (var i = 0; i < element.getVertices().length; ++i) {
+                    var vertice = element.getVertices()[i];
+                    if (i == 0) {
+                        context.moveTo(vertice.x + position.x, vertice.y + position.y);
+                    }
+                    else {
+                        context.lineTo(vertice.x + position.x, vertice.y + position.y);
+                    }
+                }
+                context.closePath();
+            }
+            PolygonDraw.render = render;
+        })(PolygonDraw = Draw.PolygonDraw || (Draw.PolygonDraw = {}));
+    })(Draw = Render.Draw || (Render.Draw = {}));
+})(Render || (Render = {}));
+/// <reference path="polygonDraw.ts" />
 var Render;
 (function (Render) {
     var Draw;
@@ -3285,6 +3202,24 @@ var Render;
 (function (Render) {
     var Draw;
     (function (Draw) {
+        var LineDraw;
+        (function (LineDraw) {
+            function render(element, context, position, size) {
+                var target = element.getTarget();
+                context.beginPath();
+                context.moveTo(position.x, position.y);
+                context.lineTo(target.x, target.y);
+                context.closePath();
+            }
+            LineDraw.render = render;
+        })(LineDraw = Draw.LineDraw || (Draw.LineDraw = {}));
+    })(Draw = Render.Draw || (Render.Draw = {}));
+})(Render || (Render = {}));
+/// <reference path="lineDraw.ts" />
+var Render;
+(function (Render) {
+    var Draw;
+    (function (Draw) {
         /*	--------------------------------------------------- *\
                 [class] Line()
         
@@ -3338,6 +3273,76 @@ var Render;
         Draw.Line = Line;
     })(Draw = Render.Draw || (Render.Draw = {}));
 })(Render || (Render = {}));
+var Render;
+(function (Render) {
+    var Draw;
+    (function (Draw) {
+        var TextDraw;
+        (function (TextDraw) {
+            function render(element, context, position, size) {
+                context.fillStyle = element.getColor();
+                context.font = element.getFontStyle() + " " + element.getFontSize() + "px " + element.getFont();
+                context.textBaseline = element.getBaseline();
+                if (element.getStrokeSize() != 0) {
+                    context.strokeText(element.getValue(), position.x, position.y);
+                }
+                var myText = new String(element.getValue());
+                var length = element.getValue().length;
+                var lineHeight = element.getFontSize();
+                var lineWidth = length * lineHeight;
+                var numberLines = Math.ceil(lineWidth / size.width);
+                var numberOfCharacterInOneLine = Math.floor(size.width / lineHeight) * 1.8;
+                var lines = [];
+                if (lineWidth > size.width) {
+                    numberLines = numberLines - 1;
+                }
+                for (var i = 0; i < numberLines; i++) {
+                    lines[i] = [];
+                }
+                ;
+                var currentLetter = 0;
+                var currentLine = 0;
+                for (var letter = 0; letter < myText.length; letter++) {
+                    if (currentLetter < numberOfCharacterInOneLine) {
+                        lines[currentLine].push(myText[letter]);
+                        currentLetter++;
+                    }
+                    else {
+                        currentLetter = 0;
+                        currentLine++;
+                        if (!lines[currentLine]) {
+                            lines[currentLine] = [];
+                        }
+                        lines[currentLine].push(myText[letter]);
+                    }
+                }
+                ;
+                var align = element.getAlign();
+                var verticalAlign = element.getVerticalAlign();
+                context.textAlign = align;
+                var linesHeight = lineHeight * lines.length;
+                var offsetPosition = { x: 0, y: 0 };
+                for (var i = 0; i < lines.length; i++) {
+                    var myString = "";
+                    for (var k = 0; k < lines[i].length; k++) {
+                        myString = myString + lines[i][k];
+                    }
+                    ;
+                    if (verticalAlign == "middle") {
+                        offsetPosition.y = offsetPosition.y + lineHeight;
+                    }
+                    if (align == "center") {
+                        offsetPosition.x = (size.width / 2);
+                    }
+                    context.fillText(myString, position.x + offsetPosition.x, position.y + offsetPosition.y);
+                }
+                ;
+            }
+            TextDraw.render = render;
+        })(TextDraw = Draw.TextDraw || (Draw.TextDraw = {}));
+    })(Draw = Render.Draw || (Render.Draw = {}));
+})(Render || (Render = {}));
+/// <reference path="textDraw.ts" />
 var Render;
 (function (Render) {
     var Draw;
@@ -3533,6 +3538,25 @@ var Render;
         Draw.Text = Text;
     })(Draw = Render.Draw || (Render.Draw = {}));
 })(Render || (Render = {}));
+var Render;
+(function (Render) {
+    var Draw;
+    (function (Draw) {
+        var PointDraw;
+        (function (PointDraw) {
+            function render(element, context, position, size) {
+                context.beginPath();
+                context.moveTo(position.x - 5, position.y);
+                context.lineTo(position.x + 5, position.y);
+                context.moveTo(position.x, position.y - 5);
+                context.lineTo(position.x, position.y + 5);
+                context.closePath();
+            }
+            PointDraw.render = render;
+        })(PointDraw = Draw.PointDraw || (Draw.PointDraw = {}));
+    })(Draw = Render.Draw || (Render.Draw = {}));
+})(Render || (Render = {}));
+/// <reference path="pointDraw.ts" />
 var Render;
 (function (Render) {
     var Draw;
@@ -4954,18 +4978,20 @@ var Fonts;
 /// <reference path="camera.ts" />
 /// <reference path="input.ts" />
 /// <reference path="update.ts" />
-/// <reference path="render.ts" />
+/// <reference path="render/render.ts" />
+/// <reference path="render/download.ts" />
 /// <reference path="render/layer.ts" />
-/// <reference path="render/texture.ts" />
-/// <reference path="render/drawable.ts" />
-/// <reference path="render/sprite.ts" />
-/// <reference path="render/draw/draw.ts" />
-/// <reference path="render/draw/rectangle.ts" />
-/// <reference path="render/draw/circle.ts" />
-/// <reference path="render/draw/polygon.ts" />
-/// <reference path="render/draw/line.ts" />
-/// <reference path="render/draw/text.ts" />
-/// <reference path="render/draw/point.ts" />
+/// <reference path="render/elements/layer.ts" />
+/// <reference path="render/elements/texture.ts" />
+/// <reference path="render/elements/drawable.ts" />
+/// <reference path="render/elements/sprite.ts" />
+/// <reference path="render/elements/draw/draw.ts" />
+/// <reference path="render/elements/draw/rectangle.ts" />
+/// <reference path="render/elements/draw/circle.ts" />
+/// <reference path="render/elements/draw/polygon.ts" />
+/// <reference path="render/elements/draw/line.ts" />
+/// <reference path="render/elements/draw/text.ts" />
+/// <reference path="render/elements/draw/point.ts" />
 /// <reference path="grid.ts" />
 /// <reference path="interface.ts" />
 /// <reference path="ui/gui.ts" />
