@@ -13,7 +13,6 @@
 /// <reference path="input.ts" />
 /// <reference path="update.ts" />
 
-/// <reference path="render.ts" />
 /// <reference path="render/render.ts" />
 /// <reference path="render/download.ts" />
 /// <reference path="render/layer.ts" />

@@ -75,7 +75,7 @@ module Fonts{
 		
 				Return: name
 		\*	--------------------------------------------------- */
-		getName(){
+		getName():string{
 			return this.name;
 		}
 
@@ -86,7 +86,7 @@ module Fonts{
 		
 				Return: path
 		\*	--------------------------------------------------- */
-		getPath(){
+		getPath():string{
 			return this.path;
 		}
 	}

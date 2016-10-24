@@ -24,7 +24,7 @@ module Render{
 	
 	        Return: nil
 	\*    --------------------------------------------------- */
-	export function setCamera(camera){
+	export function setCamera(camera : Camera){
 		vars.camera = camera;
 	}
 
@@ -35,7 +35,7 @@ module Render{
 	
 	        Return: camera
 	\*    --------------------------------------------------- */
-	export function getCamera(){
+	export function getCamera():Camera{
 		return vars.camera;
 	}
 

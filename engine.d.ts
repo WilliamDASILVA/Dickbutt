@@ -112,7 +112,7 @@ declare class Camera extends Scene {
     private rotationPoint;
     private isCameraLock;
     private cameraLockOn;
-    constructor(scene: any);
+    constructor(scene: Scene);
     setPosition(position: any, y?: number): void;
     getPosition(): Point;
     getDepth(): number;
@@ -189,10 +189,8 @@ declare module Update {
     function on(functionToCall: any): void;
 }
 declare module Render {
-}
-declare module Render {
-    function setCamera(camera: any): void;
-    function getCamera(): any;
+    function setCamera(camera: Camera): void;
+    function getCamera(): Camera;
     function setWorld(world: any): void;
     function getWorld(): any;
     function setDebugMode(value: boolean): void;

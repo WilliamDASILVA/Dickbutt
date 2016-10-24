@@ -66,7 +66,6 @@ var Global;
     \*    --------------------------------------------------- */
     function getPositionFromScreen(screenX, screenY, cam) {
         var position = cam.getOrigin();
-        console.log("Cam position", position);
         var depth = cam.getDepth();
         var actual = { x: (position.x + screenX) / depth, y: (position.y + screenY) / depth };
         return new Point(actual.x, actual.y);
@@ -1622,25 +1621,6 @@ var Update;
     }
     Update.on = on;
 })(Update || (Update = {}));
-/*	--------------------------------------------------- *\
-        Render
-\*	--------------------------------------------------- */
-var Render;
-(function (Render) {
-    var renderCamera = null;
-    var image_prefix = "./";
-    var elementsToDownload = [];
-    var fToCallWhenDownloadReady = [];
-    var debugMode = {
-        active: false,
-        type: "aabb"
-    };
-    var actualWorld = null;
-    /*	--------------------------------------------------- *\
-            Render loop
-    \*	--------------------------------------------------- */
-    var elementToDraw;
-})(Render || (Render = {}));
 /*    --------------------------------------------------- *\
         Render
 \*    --------------------------------------------------- */
@@ -4998,7 +4978,6 @@ var Fonts;
 /// <reference path="camera.ts" />
 /// <reference path="input.ts" />
 /// <reference path="update.ts" />
-/// <reference path="render.ts" />
 /// <reference path="render/render.ts" />
 /// <reference path="render/download.ts" />
 /// <reference path="render/layer.ts" />
