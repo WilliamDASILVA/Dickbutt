@@ -13,14 +13,7 @@ declare module Global {
     function getRandom(min: number, max: number): number;
     function getTrunc(x: number): number;
     function isAndroid(): boolean;
-    class XHR {
-        request: any;
-        functionsToCallWhenReady: any;
-        functionsToCallWhenLoaded: any;
-        constructor(target: string, ...parameters: any[]);
-        ready(functionToCall: any): void;
-        load(functionToCall: any): void;
-    }
+    function XHR(target: string, ...parameters: any[]): any;
 }
 declare class Point {
     x: number;

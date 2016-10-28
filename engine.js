@@ -155,84 +155,48 @@ var Global;
             * Crée une request XHR *
     
     \*    --------------------------------------------------- */
-    var XHR = (function () {
-        /*    --------------------------------------------------- *\
-                [function] constructor()
-        
-                * Quand on crée une request XHR *
-        
-                Return: nil
-        \*    --------------------------------------------------- */
-        function XHR(target) {
-            var _this = this;
-            var parameters = [];
-            for (var _i = 1; _i < arguments.length; _i++) {
-                parameters[_i - 1] = arguments[_i];
-            }
-            this.functionsToCallWhenReady = [];
-            this.functionsToCallWhenLoaded = [];
-            //this.request = new XDomainRequest() ||; 
+    function XHR(target) {
+        var parameters = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            parameters[_i - 1] = arguments[_i];
+        }
+        return new window['Promise'](function (resolve, reject) {
+            var request;
             try {
-                this.request = new XMLHttpRequest();
+                request = new XMLHttpRequest();
             }
             catch (e) {
                 try {
-                    this.request = new ActiveXObject("Msxml2.XMLHTTP");
+                    request = new ActiveXObject("Msxml2.XMLHTTP");
                 }
                 catch (e) {
                     try {
-                        this.request = new ActiveXObject("Microsoft.XMLHTTP");
+                        request = new ActiveXObject("Microsoft.XMLHTTP");
                     }
-                    catch (e) { }
+                    catch (e) {
+                        reject(e);
+                    }
                 }
             }
             var requestType = "GET";
             if (parameters[0]) {
                 requestType = parameters[0];
             }
-            console.log(requestType, target);
-            this.request.open(requestType, target, true);
+            request.open(requestType, target, true);
             if (parameters[1]) {
-                this.request.responseType = parameters[1];
+                request.responseType = parameters[1];
             }
-            this.request.send(null);
-            this.request.addEventListener("readystatechange", function (response) {
-                if (_this.functionsToCallWhenReady) {
-                    for (var i = 0; i < _this.functionsToCallWhenReady.length; i++) {
-                        _this.functionsToCallWhenReady[i](_this.request, response);
-                    }
+            request.send(null);
+            request.addEventListener("readystatechange", function (response) {
+                if (response.target.status == 200) {
+                    resolve(response.target);
+                }
+                else {
+                    reject(response.target);
                 }
             });
-            this.request.addEventListener("load", function () {
-                if (_this.functionsToCallWhenLoaded) {
-                    for (var i = 0; i < _this.functionsToCallWhenLoaded.length; i++) {
-                        _this.functionsToCallWhenLoaded[i](_this.request);
-                    }
-                }
-            });
-        }
-        /*    --------------------------------------------------- *\
-                [function] ready()
-        
-                * Fires when the event is ready *
-        
-                Return: nil
-        \*    --------------------------------------------------- */
-        XHR.prototype.ready = function (functionToCall) {
-            this.functionsToCallWhenReady.push(functionToCall);
-        };
-        /*    --------------------------------------------------- *\
-                [function] load()
-        
-                * Quand la request est chargé *
-        
-                Return: nil
-        \*    --------------------------------------------------- */
-        XHR.prototype.load = function (functionToCall) {
-            this.functionsToCallWhenLoaded.push(functionToCall);
-        };
-        return XHR;
-    }());
+        });
+    }
     Global.XHR = XHR;
 })(Global || (Global = {}));
 var Point = (function () {
