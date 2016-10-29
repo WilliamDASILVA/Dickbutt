@@ -13,6 +13,7 @@ declare module Global {
     function getRandom(min: number, max: number): number;
     function getTrunc(x: number): number;
     function isAndroid(): boolean;
+    function startApp(): any;
     function XHR(target: string, ...parameters: any[]): any;
 }
 declare class Point {

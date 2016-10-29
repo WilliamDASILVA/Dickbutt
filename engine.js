@@ -149,6 +149,21 @@ var Global;
         }
     }
     Global.isAndroid = isAndroid;
+    function startApp() {
+        return new window['Promise'](function (resolve, reject) {
+            window.addEventListener("load", function () {
+                if (isAndroid()) {
+                    document.addEventListener("deviceready", function () {
+                        resolve();
+                    });
+                }
+                else {
+                    resolve();
+                }
+            });
+        });
+    }
+    Global.startApp = startApp;
     /*    --------------------------------------------------- *\
             [class] XHR()
     

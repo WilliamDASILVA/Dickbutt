@@ -147,7 +147,22 @@ module Global{
 		else{
 			return false;
 		}
-	} 
+	}
+
+	export function startApp(){
+		return new window['Promise']((resolve, reject) => {
+			window.addEventListener("load", () => {
+				if(isAndroid()) {
+					document.addEventListener("deviceready", () => {
+						resolve();
+					});
+				}
+				else{
+					resolve();
+				}
+			});
+		});
+	}
 
 	/*    --------------------------------------------------- *\
 			[class] XHR()
