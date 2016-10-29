@@ -1628,6 +1628,20 @@ var Render;
     }
     Render.setCamera = setCamera;
     /*    --------------------------------------------------- *\
+            [function] setBackgroundColor(hex)
+    
+            * Set default background color *
+    
+            Return: nil
+    \*    --------------------------------------------------- */
+    function setBackgroundColor(color) {
+        var body = document.body;
+        if (body) {
+            body.style.backgroundColor = color;
+        }
+    }
+    Render.setBackgroundColor = setBackgroundColor;
+    /*    --------------------------------------------------- *\
             [function] getCamera()
     
             * Return the used camera *

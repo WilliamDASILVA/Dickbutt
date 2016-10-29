@@ -16,7 +16,6 @@ module Render{
 		elementsOnScreen : 0
 	};
 
-
 	/*    --------------------------------------------------- *\
 	        [function] setCamera(camera)
 	
@@ -26,6 +25,20 @@ module Render{
 	\*    --------------------------------------------------- */
 	export function setCamera(camera : Camera){
 		vars.camera = camera;
+	}
+
+	/*    --------------------------------------------------- *\
+	        [function] setBackgroundColor(hex)
+	
+	        * Set default background color *
+	
+	        Return: nil
+	\*    --------------------------------------------------- */
+	export function setBackgroundColor(color : string){
+		let body = document.body;
+		if(body){
+			body.style.backgroundColor = color;
+		}
 	}
 
 	/*    --------------------------------------------------- *\

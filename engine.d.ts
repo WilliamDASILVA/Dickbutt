@@ -184,6 +184,7 @@ declare module Update {
 }
 declare module Render {
     function setCamera(camera: Camera): void;
+    function setBackgroundColor(color: string): void;
     function getCamera(): Camera;
     function setWorld(world: any): void;
     function getWorld(): any;
