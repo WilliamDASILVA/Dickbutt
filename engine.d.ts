@@ -226,11 +226,6 @@ declare module Render {
     }
 }
 declare module Render {
-    module ElementDraw {
-        function dispatch(element: any, context: any, position: any, size: any): void;
-    }
-}
-declare module Render {
     module DrawableDraw {
         function render(element: any, context: any, position: any, size: any): void;
         function dispatch(element: any, context: any): void;

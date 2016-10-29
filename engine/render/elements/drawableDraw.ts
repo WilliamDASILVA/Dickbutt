@@ -1,5 +1,3 @@
-/// <reference path="elementDraw.ts" />
-
 module Render{
 
 	export module DrawableDraw{
@@ -27,7 +25,7 @@ module Render{
 		export function dispatch(element, context){
 			if(element){
 				let position = element.getPosition();
-				let size = element.getSize();
+				let size = element.getSize ? element.getSize() : { width : 1, height : 1 };
 				let screen = Global.getScreenSize();
 
 				// Apply element's position change made by the camera
@@ -84,9 +82,6 @@ module Render{
 							else{
 								Render.DrawableDraw.render(element, context, tempPos, size);
 							}
-							break;
-						default:
-							Render.ElementDraw.dispatch(element, context, tempPos, size);
 							break;
 					}
 

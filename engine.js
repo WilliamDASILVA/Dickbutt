@@ -1842,7 +1842,16 @@ var Render;
             // Dispatch each elements depending on the type
             for (var _i = 0, elements_1 = elements; _i < elements_1.length; _i++) {
                 var element = elements_1[_i];
-                Render.DrawableDraw.dispatch(element, context);
+                if (element.getType() == "draw" || element.getType == "drawable") {
+                    Render.DrawableDraw.dispatch(element, context);
+                }
+                else {
+                    var assignedDrawables = element.getAssignedDrawables();
+                    for (var _a = 0, assignedDrawables_1 = assignedDrawables; _a < assignedDrawables_1.length; _a++) {
+                        var el = assignedDrawables_1[_a];
+                        Render.DrawableDraw.dispatch(el, context);
+                    }
+                }
             }
             context.restore();
         }
@@ -2038,26 +2047,6 @@ var Render;
 })(Render || (Render = {}));
 var Render;
 (function (Render) {
-    var ElementDraw;
-    (function (ElementDraw) {
-        function dispatch(element, context, position, size) {
-            var assignedDrawables = element.getAssignedDrawables();
-            for (var _i = 0, assignedDrawables_1 = assignedDrawables; _i < assignedDrawables_1.length; _i++) {
-                var el = assignedDrawables_1[_i];
-                if (el.isSprite()) {
-                    Render.SpriteDraw.render(el, context, position, size);
-                }
-                else {
-                    Render.DrawableDraw.render(el, context, position, size);
-                }
-            }
-        }
-        ElementDraw.dispatch = dispatch;
-    })(ElementDraw = Render.ElementDraw || (Render.ElementDraw = {}));
-})(Render || (Render = {}));
-/// <reference path="elementDraw.ts" />
-var Render;
-(function (Render) {
     var DrawableDraw;
     (function (DrawableDraw) {
         function render(element, context, position, size) {
@@ -2081,7 +2070,7 @@ var Render;
         function dispatch(element, context) {
             if (element) {
                 var position = element.getPosition();
-                var size = element.getSize();
+                var size = element.getSize ? element.getSize() : { width: 1, height: 1 };
                 var screen_1 = Global.getScreenSize();
                 // Apply element's position change made by the camera
                 var tempPos = { x: position.x, y: position.y };
@@ -2130,9 +2119,6 @@ var Render;
                             else {
                                 Render.DrawableDraw.render(element, context, tempPos, size);
                             }
-                            break;
-                        default:
-                            Render.ElementDraw.dispatch(element, context, tempPos, size);
                             break;
                     }
                     context.restore();

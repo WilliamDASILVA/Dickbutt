@@ -92,7 +92,15 @@ module Render{
 
 			// Dispatch each elements depending on the type
 			for(let element of elements){
-				Render.DrawableDraw.dispatch(element, context);
+				if(element.getType() == "draw" || element.getType == "drawable"){
+					Render.DrawableDraw.dispatch(element, context);
+				}
+				else{
+					let assignedDrawables = element.getAssignedDrawables();
+					for(let el of assignedDrawables){
+						Render.DrawableDraw.dispatch(el, context);
+					}
+				}
 			}
 
 			context.restore();
