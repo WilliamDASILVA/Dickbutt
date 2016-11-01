@@ -1842,7 +1842,7 @@ var Render;
             // Dispatch each elements depending on the type
             for (var _i = 0, elements_1 = elements; _i < elements_1.length; _i++) {
                 var element = elements_1[_i];
-                if (element.getType() == "draw" || element.getType == "drawable") {
+                if (element.getType() == "draw" || element.getType() == "drawable") {
                     Render.DrawableDraw.dispatch(element, context);
                 }
                 else {
