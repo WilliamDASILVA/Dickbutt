@@ -1880,20 +1880,31 @@ var Render;
             this.elements = [];
             this.canvasElement = document.createElement("canvas");
             this.context = this.canvasElement.getContext("2d");
-            var screenSize = Global.getScreenSize();
-            this.canvasElement.width = screenSize.width;
-            this.canvasElement.height = screenSize.height;
-            document.body.appendChild(this.canvasElement);
+            var devicePixelRatio = window.devicePixelRatio || 1;
+            var backingStoreRatio = this.context.webkitBackingStorePixelRatio ||
+                this.context.mozBackingStorePixelRatio ||
+                this.context.msBackingStorePixelRatio ||
+                this.context.oBackingStorePixelRatio ||
+                this.context.backingStorePixelRatio || 1;
+            this.ratio = devicePixelRatio / backingStoreRatio;
+            this.updateCanvasSize();
             window.addEventListener("resize", function () {
-                var screenSize = Global.getScreenSize();
-                _this.canvasElement.width = screenSize.width;
-                _this.canvasElement.height = screenSize.height;
+                _this.updateCanvasSize();
             });
             this.render();
             this.smooth = true;
             this.affectedByCamera = false;
+            document.body.appendChild(this.canvasElement);
             layers.push(this);
         }
+        Layer.prototype.updateCanvasSize = function () {
+            var screenSize = Global.getScreenSize();
+            this.canvasElement.width = screenSize.width * this.ratio;
+            this.canvasElement.height = screenSize.height * this.ratio;
+            this.canvasElement.style.width = screenSize.width + "px";
+            this.canvasElement.style.height = screenSize.height + "px";
+            this.context.scale(this.ratio, this.ratio);
+        };
         Layer.prototype.render = function () {
             var _this = this;
             Render.update(this);

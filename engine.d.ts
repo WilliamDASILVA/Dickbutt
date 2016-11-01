@@ -204,7 +204,9 @@ declare module Render {
         elements: any;
         smooth: boolean;
         affectedByCamera: boolean;
+        ratio: number;
         constructor();
+        private updateCanvasSize();
         render(): void;
         set(element: any): void;
         del(element: any): void;
