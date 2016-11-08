@@ -88,10 +88,9 @@ module Render{
 				Return: nil
 		\*    --------------------------------------------------- */
 		del(element : any){
-			for (var i = this.elements.length - 1; i >= 0; i--) {
-				if(this.elements[i] == element){
-					this.elements.splice(i, 1);
-					delete this.elements[i];
+			for(let el in this.elements){
+				if(this.elements[el] === element){
+					this.elements.splice(el, 1);
 				}
 			}
 		}

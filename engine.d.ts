@@ -7,8 +7,8 @@ declare module Global {
         width: any;
     };
     function getDistanceBetween2Points(aX: any, aY: any, bX?: number, bY?: number): number;
-    function getPositionFromScreen(screenX: any, screenY: any, cam: any): Point;
-    function getPositionFromWorld(worldX: any, worldY: any, cam: any): Point;
+    function getPositionFromScreen(screenX: any, screenY: any, cam?: Camera): Point;
+    function getPositionFromWorld(worldX: any, worldY: any, cam?: Camera): Point;
     function findRotation(x1: any, y1: any, x2?: number, y2?: number): number;
     function getRandom(min: number, max: number): number;
     function getTrunc(x: number): number;
@@ -219,13 +219,15 @@ declare module Render {
 }
 declare module Render {
     class Texture {
-        src: string;
-        data: any;
+        private src;
+        private data;
         constructor(src: string);
         getData(): any;
         setSrc(src: string): void;
         onLoad(functionToCall: any): void;
     }
+    function createTexture(textureName: string, texturePath: string): void;
+    function getTexture(textureName: any): any;
 }
 declare module Render {
     module DrawableDraw {

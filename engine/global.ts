@@ -60,7 +60,7 @@ module Global{
 	
 			Return: position
 	\*    --------------------------------------------------- */
-	export function getPositionFromScreen(screenX, screenY, cam):Point{
+	export function getPositionFromScreen(screenX, screenY, cam = Render.getCamera()):Point{
 		var position = cam.getOrigin();
 		var depth = cam.getDepth();
 
@@ -75,7 +75,7 @@ module Global{
 	
 			Return: position
 	\*    --------------------------------------------------- */
-	export function getPositionFromWorld(worldX, worldY, cam):Point{
+	export function getPositionFromWorld(worldX, worldY, cam = Render.getCamera()):Point{
 		var position = cam.getOrigin();
 		var depth = cam.getDepth();
 
