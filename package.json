@@ -1,0 +1,23 @@
+{
+  "name": "duckbutt",
+  "version": "1.0.0",
+  "description": "A 2D game engine",
+  "main": "engine.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://willia_am@bitbucket.org/willia_am/dickbutt-engine.git"
+  },
+  "author": "William DA SILVA <williamdasilva@outlook.com>",
+  "license": "ISC",
+  "homepage": "https://bitbucket.org/willia_am/dickbutt-engine#readme",
+  "dependencies": {
+    "gulp": "^3.9.1",
+    "gulp-rename": "^1.2.2",
+    "gulp-typescript": "^3.0.2",
+    "gulp-uglify": "^2.0.0",
+    "typescript": "^2.0.3"
+  }
+}
