@@ -1,11 +1,7 @@
 {
   "name": "dickbutt",
   "description": "A 2D game engine",
-  "main": [
-    "engine.js",
-    "engine/p2.js",
-    "engine/tween.js"
-  ],
+  "main": "engine.js",
   "authors": [
     "William DA SILVA <williamdasilva@outlook.com>"
   ],
