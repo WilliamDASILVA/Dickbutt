@@ -1,6 +1,7 @@
 module Render {
 	
-	var image_prefix = "./";
+	const image_prefix = "./";
+	const textures = {};
 
 	/*	--------------------------------------------------- *\
 			[class] Texture()
@@ -9,8 +10,8 @@ module Render {
 	
 	\*	--------------------------------------------------- */
 	export class Texture {
-		src: string;
-		data: any;
+		private src : string;
+		private data: any;
 
 		/*	--------------------------------------------------- *\
 				[function] constructor()
@@ -65,6 +66,31 @@ module Render {
             this.getData().addEventListener("load", function() {
                 func(texture);
             });
+		}
+	}
+
+	/*	--------------------------------------------------- *\
+			[function] createTexture(name, path)
+	
+			* Create a texture and save it *
+	
+	\*	--------------------------------------------------- */
+	export function createTexture(textureName : string, texturePath : string){
+		if(textureName && texturePath){
+			let texture = new Render.Texture(texturePath);
+			textures[textureName] = texture;
+		}
+	}
+
+	/*	--------------------------------------------------- *\
+			[function] getTexture(name)
+	
+			* Return the associated texture *
+	
+	\*	--------------------------------------------------- */
+	export function getTexture(textureName){
+		if(textureName){
+			return textures[textureName];
 		}
 	}
 }

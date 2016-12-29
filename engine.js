@@ -65,6 +65,7 @@ var Global;
             Return: position
     \*    --------------------------------------------------- */
     function getPositionFromScreen(screenX, screenY, cam) {
+        if (cam === void 0) { cam = Render.getCamera(); }
         var position = cam.getOrigin();
         var depth = cam.getDepth();
         var actual = { x: (position.x + screenX) / depth, y: (position.y + screenY) / depth };
@@ -79,6 +80,7 @@ var Global;
             Return: position
     \*    --------------------------------------------------- */
     function getPositionFromWorld(worldX, worldY, cam) {
+        if (cam === void 0) { cam = Render.getCamera(); }
         var position = cam.getOrigin();
         var depth = cam.getDepth();
         var actual = { x: (worldX - position.x) * depth, y: (worldY - position.y) * depth };
@@ -1849,14 +1851,16 @@ var Render;
             // Dispatch each elements depending on the type
             for (var _i = 0, elements_1 = elements; _i < elements_1.length; _i++) {
                 var element = elements_1[_i];
-                if (element.getType() == "draw" || element.getType() == "drawable") {
-                    Render.DrawableDraw.dispatch(element, context);
-                }
-                else {
-                    var assignedDrawables = element.getAssignedDrawables();
-                    for (var _a = 0, assignedDrawables_1 = assignedDrawables; _a < assignedDrawables_1.length; _a++) {
-                        var el = assignedDrawables_1[_a];
-                        Render.DrawableDraw.dispatch(el, context);
+                if (element) {
+                    if (element.getType() == "draw" || element.getType() == "drawable") {
+                        Render.DrawableDraw.dispatch(element, context);
+                    }
+                    else {
+                        var assignedDrawables = element.getAssignedDrawables();
+                        for (var _a = 0, assignedDrawables_1 = assignedDrawables; _a < assignedDrawables_1.length; _a++) {
+                            var el = assignedDrawables_1[_a];
+                            Render.DrawableDraw.dispatch(el, context);
+                        }
                     }
                 }
             }
@@ -1937,10 +1941,9 @@ var Render;
                 Return: nil
         \*    --------------------------------------------------- */
         Layer.prototype.del = function (element) {
-            for (var i = this.elements.length - 1; i >= 0; i--) {
-                if (this.elements[i] == element) {
-                    this.elements.splice(i, 1);
-                    delete this.elements[i];
+            for (var el in this.elements) {
+                if (this.elements[el] === element) {
+                    this.elements.splice(el, 1);
                 }
             }
         };
@@ -2001,6 +2004,7 @@ var Render;
 var Render;
 (function (Render) {
     var image_prefix = "./";
+    var textures = {};
     /*	--------------------------------------------------- *\
             [class] Texture()
     
@@ -2062,6 +2066,31 @@ var Render;
         return Texture;
     }());
     Render.Texture = Texture;
+    /*	--------------------------------------------------- *\
+            [function] createTexture(name, path)
+    
+            * Create a texture and save it *
+    
+    \*	--------------------------------------------------- */
+    function createTexture(textureName, texturePath) {
+        if (textureName && texturePath) {
+            var texture = new Render.Texture(texturePath);
+            textures[textureName] = texture;
+        }
+    }
+    Render.createTexture = createTexture;
+    /*	--------------------------------------------------- *\
+            [function] getTexture(name)
+    
+            * Return the associated texture *
+    
+    \*	--------------------------------------------------- */
+    function getTexture(textureName) {
+        if (textureName) {
+            return textures[textureName];
+        }
+    }
+    Render.getTexture = getTexture;
 })(Render || (Render = {}));
 var Render;
 (function (Render) {
