@@ -70,17 +70,16 @@ module Sounds{
 			this.isReady = false;
 			this.playing = false;
 
-			var _this = this;
 			if(Global.isAndroid()){
 				if(typeof window['Media'] != "undefined"){
 					this.element = new window['Media']("/android_asset/www/" + path, function(){
-						_this.emit("end");
+						this.emit("end");
 					}, function(error){
 						console.log("Error", error);
 					});
 					setTimeout(function(){
-						_this.isReady = true;
-						_this.emit("ready");
+						this.isReady = true;
+						this.emit("ready");
 					}, 100);
 				}
 			}
@@ -88,12 +87,12 @@ module Sounds{
 				if(typeof Audio != "undefined"){
 					this.element = new Audio(path);
 					this.element.addEventListener("canplaythrough", () => {
-						_this.isReady = true;
-						_this.emit("ready");
+						this.isReady = true;
+						this.emit("ready");
 					});
 
 					this.element.addEventListener("ended", () => {
-						_this.emit("end");
+						this.emit("end");
 					});
 				}
 			}

@@ -364,7 +364,7 @@ var Elements = (function (_super) {
     \*    --------------------------------------------------- */
     function Elements(mass, isStatic) {
         if (mass === void 0) { mass = 100; }
-        _super.call(this, {
+        var _this = _super.call(this, {
             mass: mass,
             position: [0, 0],
             velocity: [0, 0],
@@ -373,21 +373,22 @@ var Elements = (function (_super) {
             force: [0, 0],
             angularForce: 0,
             fixedRotation: 0
-        });
-        this.drawables = [];
-        this.datas = [];
-        this.canCollide = [];
-        this.isSensor = false;
-        this.haveCollision = false;
-        this.colGroup = 0;
-        this.eType = "";
-        this.shapeAngle = 0;
-        this.depth = 0;
-        this.static = isStatic || false;
+        }) || this;
+        _this.drawables = [];
+        _this.datas = [];
+        _this.canCollide = [];
+        _this.isSensor = false;
+        _this.haveCollision = false;
+        _this.colGroup = 0;
+        _this.eType = "";
+        _this.shapeAngle = 0;
+        _this.depth = 0;
+        _this.static = isStatic || false;
         if (!isStatic) {
-            _elements.push(this);
+            _elements.push(_this);
         }
-        this.centred = false;
+        _this.centred = false;
+        return _this;
     }
     Elements.prototype.setCentred = function (value) {
         this.centred = value;
@@ -721,7 +722,7 @@ var Elements = (function (_super) {
     Elements.prototype.canCollideWith = function () {
         var parameters = [];
         for (var _i = 0; _i < arguments.length; _i++) {
-            parameters[_i - 0] = arguments[_i];
+            parameters[_i] = arguments[_i];
         }
         if (parameters) {
             for (var i = parameters.length - 1; i >= 0; i--) {
@@ -838,15 +839,16 @@ var Camera = (function (_super) {
             Return: nil
     \*	--------------------------------------------------- */
     function Camera(scene) {
-        _super.call(this);
-        this.parentScene = scene;
-        this.position = new Point(0, 0);
-        this.depth = 1;
-        this.depthPosition = new Point(0, 0);
-        this.rotationPoint = new Point(0, 0);
-        this.angle = 0;
-        this.isCameraLock = false;
-        this.cameraLockOn = null;
+        var _this = _super.call(this) || this;
+        _this.parentScene = scene;
+        _this.position = new Point(0, 0);
+        _this.depth = 1;
+        _this.depthPosition = new Point(0, 0);
+        _this.rotationPoint = new Point(0, 0);
+        _this.angle = 0;
+        _this.isCameraLock = false;
+        _this.cameraLockOn = null;
+        return _this;
     }
     /*	--------------------------------------------------- *\
             [function] setPosition()
@@ -1033,11 +1035,12 @@ var Input;
                 Return: nil
         \*	--------------------------------------------------- */
         function MouseMove() {
-            _super.call(this);
-            var cache = this;
+            var _this = _super.call(this) || this;
+            var cache = _this;
             window.addEventListener("mousemove", function (e) {
                 cache.emit("move", e.clientX, e.clientY);
             });
+            return _this;
         }
         return MouseMove;
     }(Events));
@@ -1062,13 +1065,13 @@ var Input;
             if (y === void 0) { y = 0; }
             if (width === void 0) { width = window.innerWidth; }
             if (height === void 0) { height = window.innerHeight; }
-            _super.call(this);
-            this.x = x;
-            this.y = y;
-            this.width = width;
-            this.height = height;
+            var _this = _super.call(this) || this;
+            _this.x = x;
+            _this.y = y;
+            _this.width = width;
+            _this.height = height;
             var holdStart = null;
-            var cache = this;
+            var cache = _this;
             document.addEventListener("mouseup", function (e) {
                 if (e.clientX >= cache.x && e.clientX <= cache.x + cache.width && e.clientY >= cache.y && e.clientY <= cache.y + cache.height) {
                     var button = "";
@@ -1111,6 +1114,7 @@ var Input;
                     }, settings.holdTime);
                 }
             });
+            return _this;
         }
         /*	--------------------------------------------------- *\
                 [function] setPosition(x, y)
@@ -1157,12 +1161,12 @@ var Input;
             if (y === void 0) { y = 0; }
             if (width === void 0) { width = window.innerWidth; }
             if (height === void 0) { height = window.innerHeight; }
-            _super.call(this);
-            this.x = x;
-            this.y = y;
-            this.width = width;
-            this.height = height;
-            var cache = this;
+            var _this = _super.call(this) || this;
+            _this.x = x;
+            _this.y = y;
+            _this.width = width;
+            _this.height = height;
+            var cache = _this;
             window.addEventListener("click", function (e) {
                 if (e.clientX >= cache.x && e.clientX <= cache.x + cache.width && e.clientY >= cache.y && e.clientY <= cache.y + cache.height) {
                     cache.emit("click", e.clientX, e.clientY);
@@ -1171,6 +1175,7 @@ var Input;
                     cache.emit("out", e.clientX, e.clientY);
                 }
             });
+            return _this;
         }
         /*	--------------------------------------------------- *\
                 [function] setPosition(x, y)
@@ -1217,13 +1222,13 @@ var Input;
             if (y === void 0) { y = 0; }
             if (width === void 0) { width = window.innerWidth; }
             if (height === void 0) { height = window.innerHeight; }
-            _super.call(this);
-            this.x = x;
-            this.y = y;
-            this.width = width;
-            this.height = height;
+            var _this = _super.call(this) || this;
+            _this.x = x;
+            _this.y = y;
+            _this.width = width;
+            _this.height = height;
             var holdStart = false;
-            var cache = this;
+            var cache = _this;
             document.body.addEventListener("touchstart", function (e) {
                 for (var i = e.changedTouches.length - 1; i >= 0; i--) {
                     if (e.changedTouches[i].clientX >= cache.x && e.changedTouches[i].clientX <= cache.x + cache.width && e.changedTouches[i].clientY >= cache.y && e.changedTouches[i].clientY <= cache.y + cache.height) {
@@ -1256,6 +1261,7 @@ var Input;
                 }
                 e.preventDefault();
             }, false);
+            return _this;
         }
         /*	--------------------------------------------------- *\
                 [function] setPosition(x, y)
@@ -1298,16 +1304,15 @@ var Input;
                 Return: nil
         \*	--------------------------------------------------- */
         function Key() {
-            var _this = this;
             var rest = [];
             for (var _i = 0; _i < arguments.length; _i++) {
-                rest[_i - 0] = arguments[_i];
+                rest[_i] = arguments[_i];
             }
-            _super.call(this);
-            var cache = this;
-            this.keyPressed = null;
+            var _this = _super.call(this) || this;
+            var cache = _this;
+            _this.keyPressed = null;
             if (rest[0]) {
-                this.keyPressed = rest[0];
+                _this.keyPressed = rest[0];
             }
             window.addEventListener("keydown", function (e) {
                 if (_this.keyPressed) {
@@ -1336,6 +1341,7 @@ var Input;
                     cache.emit("up", e.key, e.keyCode, e.charCode);
                 }
             });
+            return _this;
         }
         /*	--------------------------------------------------- *\
                 [function] setKey(key)
@@ -1375,8 +1381,8 @@ var Input;
                 Return: nil
         \*	--------------------------------------------------- */
         function Scroll() {
-            _super.call(this);
-            var cache = this;
+            var _this = _super.call(this) || this;
+            var cache = _this;
             window.addEventListener("DOMMouseScroll", function (e) {
                 if (e) {
                     if (e['detail'] && e['detail'] > 0) {
@@ -1387,6 +1393,7 @@ var Input;
                     }
                 }
             });
+            return _this;
         }
         return Scroll;
     }(Events));
@@ -1407,14 +1414,13 @@ var Input;
                 Return: nil
         \*	--------------------------------------------------- */
         function Gamepad() {
-            var _this = this;
-            _super.call(this);
-            this.isActive = true;
-            this.gamepads = [];
-            this.states = [{}, {}, {}, {}];
-            this.rounded = false;
-            this.roundedDecimal = 10;
-            var cache = this;
+            var _this = _super.call(this) || this;
+            _this.isActive = true;
+            _this.gamepads = [];
+            _this.states = [{}, {}, {}, {}];
+            _this.rounded = false;
+            _this.roundedDecimal = 10;
+            var cache = _this;
             window.addEventListener("gamepadconnected", function (e) {
                 // update gamepads list
                 _this.gamepads = navigator.getGamepads();
@@ -1429,6 +1435,7 @@ var Input;
             requestAnimationFrame(function () {
                 _this.checkChanges();
             });
+            return _this;
         }
         Gamepad.prototype.isRounded = function (value) {
             this.rounded = value;
@@ -1728,7 +1735,7 @@ var Render;
             if (vars.files.length == 0) {
                 resolve(downloaded);
             }
-            var _loop_1 = function(file) {
+            var _loop_1 = function (file) {
                 obj = new Image();
                 obj.src = vars.imagePrefix + file.path;
                 path = file.path;
@@ -2567,19 +2574,19 @@ var Render;
             for (var _i = 1; _i < arguments.length; _i++) {
                 parameters[_i - 1] = arguments[_i];
             }
-            _super.call(this, texture);
-            this.sprite = true;
-            this.currentFrame = 0;
-            this.fps = 10;
-            this.frameLine = parameters[7] || 0;
-            this.position = { x: parameters[0], y: parameters[1] } || this.position;
-            this.size = { width: parameters[2], height: parameters[3] } || this.size;
-            this.frameSize = { width: parameters[4], height: parameters[5] };
-            this.frameAmount = parameters[6] || 0;
-            this.loop = false;
-            this.loopFinished = false;
-            var cache = this;
-            this.currentInterval = setInterval(function () {
+            var _this = _super.call(this, texture) || this;
+            _this.sprite = true;
+            _this.currentFrame = 0;
+            _this.fps = 10;
+            _this.frameLine = parameters[7] || 0;
+            _this.position = { x: parameters[0], y: parameters[1] } || _this.position;
+            _this.size = { width: parameters[2], height: parameters[3] } || _this.size;
+            _this.frameSize = { width: parameters[4], height: parameters[5] };
+            _this.frameAmount = parameters[6] || 0;
+            _this.loop = false;
+            _this.loopFinished = false;
+            var cache = _this;
+            _this.currentInterval = setInterval(function () {
                 var currentFrame = cache.getCurrentFrame();
                 if (cache.loop) {
                     if (cache.loopFinished == false) {
@@ -2594,7 +2601,8 @@ var Render;
                 else {
                     cache.setCurrentFrame(currentFrame += 1);
                 }
-            }, 1000 / this.fps);
+            }, 1000 / _this.fps);
+            return _this;
         }
         /*	--------------------------------------------------- *\
                 [function] setFrameSize(width, height)
@@ -2837,15 +2845,16 @@ var Render;
                     Return: nil
             \*	--------------------------------------------------- */
             function Draw() {
-                _super.call(this, null);
-                this.type = "draw";
-                this.shape = null;
-                this.strokeSize = 0;
-                this.color = "#000";
-                this.shadowEnabled = false;
-                this.shadowColor = "#000000";
-                this.shadowBlur = 0;
-                this.shadowPosition = { x: 0, y: 0 };
+                var _this = _super.call(this, null) || this;
+                _this.type = "draw";
+                _this.shape = null;
+                _this.strokeSize = 0;
+                _this.color = "#000";
+                _this.shadowEnabled = false;
+                _this.shadowColor = "#000000";
+                _this.shadowBlur = 0;
+                _this.shadowPosition = { x: 0, y: 0 };
+                return _this;
             }
             /*	--------------------------------------------------- *\
                     [function] setColor(hexdecimal)
@@ -3040,15 +3049,16 @@ var Render;
             function Rectangle() {
                 var parameters = [];
                 for (var _i = 0; _i < arguments.length; _i++) {
-                    parameters[_i - 0] = arguments[_i];
+                    parameters[_i] = arguments[_i];
                 }
-                _super.call(this);
-                this.shape = "rectangle";
-                this.position.x = parameters[0] || this.position.x;
-                this.position.y = parameters[1] || this.position.y;
-                this.size.width = parameters[2] || this.size.width;
-                this.size.height = parameters[3] || this.size.height;
-                this.setColor(parameters[4] || "#FFFFFF");
+                var _this = _super.call(this) || this;
+                _this.shape = "rectangle";
+                _this.position.x = parameters[0] || _this.position.x;
+                _this.position.y = parameters[1] || _this.position.y;
+                _this.size.width = parameters[2] || _this.size.width;
+                _this.size.height = parameters[3] || _this.size.height;
+                _this.setColor(parameters[4] || "#FFFFFF");
+                return _this;
             }
             return Rectangle;
         }(Draw.Draw));
@@ -3094,14 +3104,15 @@ var Render;
             function Circle() {
                 var parameters = [];
                 for (var _i = 0; _i < arguments.length; _i++) {
-                    parameters[_i - 0] = arguments[_i];
+                    parameters[_i] = arguments[_i];
                 }
-                _super.call(this);
-                this.shape = "circle";
-                this.position.x = parameters[0] || this.position.x;
-                this.position.y = parameters[1] || this.position.y;
-                this.radius = parameters[2] || this.radius;
-                this.setSize(this.getRadius() * 2, this.getRadius() * 2);
+                var _this = _super.call(this) || this;
+                _this.shape = "circle";
+                _this.position.x = parameters[0] || _this.position.x;
+                _this.position.y = parameters[1] || _this.position.y;
+                _this.radius = parameters[2] || _this.radius;
+                _this.setSize(_this.getRadius() * 2, _this.getRadius() * 2);
+                return _this;
             }
             /*	--------------------------------------------------- *\
                     [function] setRadius(radius)
@@ -3173,21 +3184,22 @@ var Render;
                     Return: nil
             \*	--------------------------------------------------- */
             function Polygon(vertices) {
-                _super.call(this);
-                this.shape = "polygon";
-                this.vertices = vertices;
+                var _this = _super.call(this) || this;
+                _this.shape = "polygon";
+                _this.vertices = vertices;
                 // find width / height
                 var xVertices = [];
                 var yVertices = [];
-                for (var i = 0; i < this.vertices.length; ++i) {
-                    xVertices.push(this.vertices[i].x);
-                    yVertices.push(this.vertices[i].y);
+                for (var i = 0; i < _this.vertices.length; ++i) {
+                    xVertices.push(_this.vertices[i].x);
+                    yVertices.push(_this.vertices[i].y);
                 }
                 var xmin = Math.min.apply(null, xVertices);
                 var xmax = Math.max.apply(null, xVertices);
                 var ymin = Math.min.apply(null, yVertices);
                 var ymax = Math.max.apply(null, yVertices);
-                this.setSize(xmax - xmin, ymax - ymin);
+                _this.setSize(xmax - xmin, ymax - ymin);
+                return _this;
             }
             /*	--------------------------------------------------- *\
                     [function] getVertices()
@@ -3257,15 +3269,16 @@ var Render;
             function Line() {
                 var parameters = [];
                 for (var _i = 0; _i < arguments.length; _i++) {
-                    parameters[_i - 0] = arguments[_i];
+                    parameters[_i] = arguments[_i];
                 }
-                _super.call(this);
-                this.target = { x: null, y: null };
-                this.shape = "line";
-                this.position.x = parameters[0] || this.position.x;
-                this.position.y = parameters[1] || this.position.y;
-                this.target.x = parameters[2] || this.target.x;
-                this.target.y = parameters[3] || this.target.y;
+                var _this = _super.call(this) || this;
+                _this.target = { x: null, y: null };
+                _this.shape = "line";
+                _this.position.x = parameters[0] || _this.position.x;
+                _this.position.y = parameters[1] || _this.position.y;
+                _this.target.x = parameters[2] || _this.target.x;
+                _this.target.y = parameters[3] || _this.target.y;
+                return _this;
             }
             /*	--------------------------------------------------- *\
                     [function] setTarget(x, y)
@@ -3384,23 +3397,24 @@ var Render;
             function Text() {
                 var parameters = [];
                 for (var _i = 0; _i < arguments.length; _i++) {
-                    parameters[_i - 0] = arguments[_i];
+                    parameters[_i] = arguments[_i];
                 }
-                _super.call(this);
-                this.shape = "text";
-                this.value = "";
-                this.setFont("Arial");
-                this.setFontSize(15);
-                this.fontStyle = "normal";
-                this.setBaseline("top");
-                this.setAlign("start");
-                this.setVerticalAlign("top");
-                this.position.x = parameters[0] || this.position.x;
-                this.position.y = parameters[1] || this.position.y;
+                var _this = _super.call(this) || this;
+                _this.shape = "text";
+                _this.value = "";
+                _this.setFont("Arial");
+                _this.setFontSize(15);
+                _this.fontStyle = "normal";
+                _this.setBaseline("top");
+                _this.setAlign("start");
+                _this.setVerticalAlign("top");
+                _this.position.x = parameters[0] || _this.position.x;
+                _this.position.y = parameters[1] || _this.position.y;
                 if (parameters[3] && parameters[4]) {
-                    this.setSize(parameters[3], parameters[4]);
+                    _this.setSize(parameters[3], parameters[4]);
                 }
-                this.value = parameters[2] || this.value;
+                _this.value = parameters[2] || _this.value;
+                return _this;
             }
             /*	--------------------------------------------------- *\
                     [function] getValue()
@@ -3596,11 +3610,12 @@ var Render;
                     Return: nil
             \*	--------------------------------------------------- */
             function Point(x, y) {
-                _super.call(this);
-                this.setPosition(x, y);
-                this.setColor("#000000");
-                this.shape = "point";
-                this.setStrokeSize(1);
+                var _this = _super.call(this) || this;
+                _this.setPosition(x, y);
+                _this.setColor("#000000");
+                _this.shape = "point";
+                _this.setStrokeSize(1);
+                return _this;
             }
             return Point;
         }(Draw.Draw));
@@ -3812,13 +3827,14 @@ var Grid;
                 Return: nil
         \*    --------------------------------------------------- */
         function Tile(parentGrid, x, y) {
-            _super.call(this);
-            this.setType("tile");
-            this.canCollideWith("player");
-            this.setMass(0);
-            this.parentGrid = parentGrid;
-            this.gridPos = { x: x, y: y };
-            this.parentGrid.addTile(this);
+            var _this = _super.call(this) || this;
+            _this.setType("tile");
+            _this.canCollideWith("player");
+            _this.setMass(0);
+            _this.parentGrid = parentGrid;
+            _this.gridPos = { x: x, y: y };
+            _this.parentGrid.addTile(_this);
+            return _this;
         }
         /*    --------------------------------------------------- *\
                 [function] getParentGrid()
@@ -3902,42 +3918,41 @@ var UI;
                 Return: nil
         \*    --------------------------------------------------- */
         function GUI() {
-            var _this = this;
-            _super.call(this);
-            this.isHTML = false;
-            this.htmlElement = null;
-            this.renderElements = [];
-            this.parent = null;
-            this.childrens = [];
-            this.events = {};
-            this.functionsToCall = {};
-            this.functionsToCallWhenOut = {};
-            this.guiType = null;
+            var _this = _super.call(this) || this;
+            _this.isHTML = false;
+            _this.htmlElement = null;
+            _this.renderElements = [];
+            _this.parent = null;
+            _this.childrens = [];
+            _this.events = {};
+            _this.functionsToCall = {};
+            _this.functionsToCallWhenOut = {};
+            _this.guiType = null;
             // Gestion de l'absolute & relative position
-            this.relativePosition = { x: 0, y: 0 };
-            this.absolutePosition = { x: 0, y: 0 };
-            var position = this.getPosition(false);
-            var size = this.getSize();
+            _this.relativePosition = { x: 0, y: 0 };
+            _this.absolutePosition = { x: 0, y: 0 };
+            var position = _this.getPosition(false);
+            var size = _this.getSize();
             // Events
             // Click
-            this.functionsToCall.click = [];
-            this.functionsToCallWhenOut.click = [];
-            var cache = this;
-            this.events.click = new Input.Click(position.x, position.y, size.width, size.height);
-            this.events.click.on("click", function () {
+            _this.functionsToCall.click = [];
+            _this.functionsToCallWhenOut.click = [];
+            var cache = _this;
+            _this.events.click = new Input.Click(position.x, position.y, size.width, size.height);
+            _this.events.click.on("click", function () {
                 for (var i = 0; i < _this.functionsToCall.click.length; ++i) {
                     _this.functionsToCall.click[i]();
                 }
             });
-            this.events.click.on("out", function () {
+            _this.events.click.on("out", function () {
                 for (var z = 0; z < _this.functionsToCallWhenOut.click.length; ++z) {
                     _this.functionsToCallWhenOut.click[z]();
                 }
             });
             // Hover
-            this.functionsToCall.hover = [];
-            this.events.hover = new Input.MouseMove();
-            this.events.hover.on("move", function (posX, posY) {
+            _this.functionsToCall.hover = [];
+            _this.events.hover = new Input.MouseMove();
+            _this.events.hover.on("move", function (posX, posY) {
                 var position = cache.getPosition(false);
                 var size = cache.getSize();
                 if (posX >= position.x && posY >= position.y && posX <= position.x + size.width && posY <= position.y + size.height) {
@@ -3947,9 +3962,9 @@ var UI;
                 }
             });
             // leave
-            this.functionsToCall.leave = [];
-            this.events.leave = new Input.MouseMove();
-            this.events.leave.on("move", function (posX, posY) {
+            _this.functionsToCall.leave = [];
+            _this.events.leave = new Input.MouseMove();
+            _this.events.leave.on("move", function (posX, posY) {
                 var position = cache.getPosition(false);
                 var size = cache.getSize();
                 if (!(posX >= position.x && posY >= position.y && posX <= position.x + size.width && posY <= position.y + size.height)) {
@@ -3958,6 +3973,7 @@ var UI;
                     }
                 }
             });
+            return _this;
         }
         /*    --------------------------------------------------- *\
                 [function] setParent(parentElement)
@@ -4031,7 +4047,7 @@ var UI;
         GUI.prototype.getPosition = function () {
             var type = [];
             for (var _i = 0; _i < arguments.length; _i++) {
-                type[_i - 0] = arguments[_i];
+                type[_i] = arguments[_i];
             }
             if (type[0] == true) {
                 return this.relativePosition;
@@ -4226,15 +4242,16 @@ var UI;
                 Return: nil
         \*    --------------------------------------------------- */
         function Window(x, y, width, height) {
-            _super.call(this);
-            this.guiType = "window";
-            this.setPosition(x, y);
-            this.setSize(width, height);
-            var position = this.getPosition(false);
-            this.renderElements[0] = new Render.Draw.Rectangle(position.x, position.y, width, height, "rgba(255,255,255,1)");
-            for (var i = 0; i < this.renderElements.length; ++i) {
-                UI.getUsedCanvas().set(this.renderElements[i]);
+            var _this = _super.call(this) || this;
+            _this.guiType = "window";
+            _this.setPosition(x, y);
+            _this.setSize(width, height);
+            var position = _this.getPosition(false);
+            _this.renderElements[0] = new Render.Draw.Rectangle(position.x, position.y, width, height, "rgba(255,255,255,1)");
+            for (var i = 0; i < _this.renderElements.length; ++i) {
+                UI.getUsedCanvas().set(_this.renderElements[i]);
             }
+            return _this;
         }
         return Window;
     }(UI.GUI));
@@ -4262,21 +4279,22 @@ var UI;
             for (var _i = 5; _i < arguments.length; _i++) {
                 rest[_i - 5] = arguments[_i];
             }
-            _super.call(this);
-            this.guiType = "label";
+            var _this = _super.call(this) || this;
+            _this.guiType = "label";
             if (rest[0]) {
-                this.setParent(rest[0]);
+                _this.setParent(rest[0]);
             }
-            this.setSize(width, height);
-            this.setPosition(x, y);
-            this.value = text;
-            var position = this.getPosition(false);
-            this.renderElements[0] = new Render.Draw.Text(position.x, position.y, this.value, width, height);
-            this.renderElements[0].setDepth(10);
-            this.renderElements[0].setMultiline(true);
-            for (var i = 0; i < this.renderElements.length; ++i) {
-                UI.getUsedCanvas().set(this.renderElements[i]);
+            _this.setSize(width, height);
+            _this.setPosition(x, y);
+            _this.value = text;
+            var position = _this.getPosition(false);
+            _this.renderElements[0] = new Render.Draw.Text(position.x, position.y, _this.value, width, height);
+            _this.renderElements[0].setDepth(10);
+            _this.renderElements[0].setMultiline(true);
+            for (var i = 0; i < _this.renderElements.length; ++i) {
+                UI.getUsedCanvas().set(_this.renderElements[i]);
             }
+            return _this;
         }
         /*    --------------------------------------------------- *\
                 [function] setValue(value)
@@ -4385,28 +4403,29 @@ var UI;
             for (var _i = 4; _i < arguments.length; _i++) {
                 rest[_i - 4] = arguments[_i];
             }
-            _super.call(this);
-            this.guiType = "button";
+            var _this = _super.call(this) || this;
+            _this.guiType = "button";
             if (rest[0]) {
-                this.setParent(rest[0]);
+                _this.setParent(rest[0]);
             }
-            this.setPosition(x, y);
-            this.setSize(width, height);
-            this.value = "";
-            var position = this.getPosition(false);
-            this.renderElements[0] = new Render.Draw.Rectangle(position.x, position.y, width, height, "rgba(255,255,255,1)");
-            this.renderElements[0].setShadow(true);
-            this.renderElements[0].setShadowColor("rgba(0,0,0,0.3)");
-            this.renderElements[0].setShadowBlur(10);
-            this.renderElements[0].setDepth(1);
-            this.renderElements[1] = new Render.Draw.Text(position.x, position.y, this.value, width, height);
-            this.renderElements[1].setAlign("center");
-            this.renderElements[1].setVerticalAlign("middle");
-            this.renderElements[1].setFontStyle("bold");
-            this.renderElements[1].setDepth(2);
-            for (var i = 0; i < this.renderElements.length; ++i) {
-                UI.getUsedCanvas().set(this.renderElements[i]);
+            _this.setPosition(x, y);
+            _this.setSize(width, height);
+            _this.value = "";
+            var position = _this.getPosition(false);
+            _this.renderElements[0] = new Render.Draw.Rectangle(position.x, position.y, width, height, "rgba(255,255,255,1)");
+            _this.renderElements[0].setShadow(true);
+            _this.renderElements[0].setShadowColor("rgba(0,0,0,0.3)");
+            _this.renderElements[0].setShadowBlur(10);
+            _this.renderElements[0].setDepth(1);
+            _this.renderElements[1] = new Render.Draw.Text(position.x, position.y, _this.value, width, height);
+            _this.renderElements[1].setAlign("center");
+            _this.renderElements[1].setVerticalAlign("middle");
+            _this.renderElements[1].setFontStyle("bold");
+            _this.renderElements[1].setDepth(2);
+            for (var i = 0; i < _this.renderElements.length; ++i) {
+                UI.getUsedCanvas().set(_this.renderElements[i]);
             }
+            return _this;
         }
         /*    --------------------------------------------------- *\
                 [function] setValue(value)
@@ -4469,18 +4488,19 @@ var UI;
             for (var _i = 4; _i < arguments.length; _i++) {
                 rest[_i - 4] = arguments[_i];
             }
-            _super.call(this);
-            this.guiType = "field";
-            this.isHTML = true;
-            this.htmlElement = document.createElement("input");
-            interfaceElement.appendChild(this.htmlElement);
+            var _this = _super.call(this) || this;
+            _this.guiType = "field";
+            _this.isHTML = true;
+            _this.htmlElement = document.createElement("input");
+            interfaceElement.appendChild(_this.htmlElement);
             if (rest[0]) {
-                this.setParent(rest[0]);
+                _this.setParent(rest[0]);
             }
-            this.setPosition(x, y);
-            this.setSize(width, height);
-            this.setValue("");
-            this.setPlaceholder("");
+            _this.setPosition(x, y);
+            _this.setSize(width, height);
+            _this.setValue("");
+            _this.setPlaceholder("");
+            return _this;
         }
         /*    --------------------------------------------------- *\
                 [function] isFocused(boolean)
@@ -4561,28 +4581,27 @@ var UI;
                 Return: nil
         \*    --------------------------------------------------- */
         function Checkbox(x, y, width, height) {
-            var _this = this;
             var rest = [];
             for (var _i = 4; _i < arguments.length; _i++) {
                 rest[_i - 4] = arguments[_i];
             }
-            _super.call(this);
-            this.guiType = "checkbox";
+            var _this = _super.call(this) || this;
+            _this.guiType = "checkbox";
             if (rest[0]) {
-                this.setParent(rest[0]);
+                _this.setParent(rest[0]);
             }
-            this.setPosition(x, y);
-            this.setSize(width, height);
-            this.checked = false;
-            this.functionsToCallWhenCheck = [];
-            var position = this.getPosition(false);
-            this.renderElements[0] = new Render.Draw.Rectangle(position.x, position.y, width, height, "rgba(0,0,0,0.1)");
-            this.renderElements[0].setDepth(10);
-            for (var i = 0; i < this.renderElements.length; ++i) {
-                UI.getUsedCanvas().set(this.renderElements[i]);
+            _this.setPosition(x, y);
+            _this.setSize(width, height);
+            _this.checked = false;
+            _this.functionsToCallWhenCheck = [];
+            var position = _this.getPosition(false);
+            _this.renderElements[0] = new Render.Draw.Rectangle(position.x, position.y, width, height, "rgba(0,0,0,0.1)");
+            _this.renderElements[0].setDepth(10);
+            for (var i = 0; i < _this.renderElements.length; ++i) {
+                UI.getUsedCanvas().set(_this.renderElements[i]);
             }
             // Event
-            this.click(function () {
+            _this.click(function () {
                 if (_this.isChecked()) {
                     _this.setCheck(false);
                 }
@@ -4593,6 +4612,7 @@ var UI;
                     _this.functionsToCallWhenCheck[i](_this.isChecked());
                 }
             });
+            return _this;
         }
         /*    --------------------------------------------------- *\
                 [function] isChecked()
@@ -4680,47 +4700,47 @@ var Sounds;
                 Return: nil
         \*	--------------------------------------------------- */
         function Sound(path) {
-            _super.call(this);
-            this.element = null;
-            this.isReady = false;
-            this.playing = false;
-            var _this = this;
+            var _this = _super.call(this) || this;
+            _this.element = null;
+            _this.isReady = false;
+            _this.playing = false;
             if (Global.isAndroid()) {
                 if (typeof window['Media'] != "undefined") {
-                    this.element = new window['Media']("/android_asset/www/" + path, function () {
-                        _this.emit("end");
+                    _this.element = new window['Media']("/android_asset/www/" + path, function () {
+                        this.emit("end");
                     }, function (error) {
                         console.log("Error", error);
                     });
                     setTimeout(function () {
-                        _this.isReady = true;
-                        _this.emit("ready");
+                        this.isReady = true;
+                        this.emit("ready");
                     }, 100);
                 }
             }
             else {
                 if (typeof Audio != "undefined") {
-                    this.element = new Audio(path);
-                    this.element.addEventListener("canplaythrough", function () {
+                    _this.element = new Audio(path);
+                    _this.element.addEventListener("canplaythrough", function () {
                         _this.isReady = true;
                         _this.emit("ready");
                     });
-                    this.element.addEventListener("ended", function () {
+                    _this.element.addEventListener("ended", function () {
                         _this.emit("end");
                     });
                 }
             }
-            this.path = path;
-            this.duration = 0;
-            this.volume = 1;
-            if (this.element) {
-                this.duration = this.element['duration'];
-                this.volume = this.element['volume'];
+            _this.path = path;
+            _this.duration = 0;
+            _this.volume = 1;
+            if (_this.element) {
+                _this.duration = _this.element['duration'];
+                _this.volume = _this.element['volume'];
             }
-            this.currentTime = 0;
-            this.muted = false;
-            this.muteTemp = 1;
-            soundList.push(this);
+            _this.currentTime = 0;
+            _this.muted = false;
+            _this.muteTemp = 1;
+            soundList.push(_this);
+            return _this;
         }
         /*	--------------------------------------------------- *\
                 [function] getPath()
